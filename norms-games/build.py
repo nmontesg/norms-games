@@ -53,6 +53,7 @@ def get_participants(identifier: str, threshold: int) -> List[str]:
   participants = [x.value for x in sln]
   return participants
 
+
 def get_roles(identifier: str, threshold: int) -> Dict[str, List[str]]:
   r"""Get the roles that the participants assume.
 
@@ -89,6 +90,7 @@ def get_roles(identifier: str, threshold: int) -> Dict[str, List[str]]:
     roles[participant] = p_roles
   return roles
 
+
 def get_initial_conditions() -> List[str]:
   r"""Get the initial conditions of the action situation.
 
@@ -108,6 +110,7 @@ def get_initial_conditions() -> List[str]:
   q.close()
   initial_facts.sort()
   return initial_facts
+
 
 def get_actions(identifier: str, threshold: int) -> Dict[str, List[str]]:
   r"""Get the available actions for all the participants.
@@ -187,6 +190,7 @@ def build_game_subtree(game: ExtensiveFormGame, actions: Dict[str, List[str]],
         node_counter += 1
     actor_info_set = deepcopy(next_actor_info_set)
   return actor_info_set, node_counter
+
 
 def get_control_rule_consequences(game: ExtensiveFormGame, identifier: str,
                                   threshold: int, expand_node: int, n: int) \
@@ -280,6 +284,7 @@ def is_rule_compatible(rule_consequences: List[Any], next_states: List[Any]) \
           return False
   return True
 
+
 def add_rule_consequences(rule_consequences: List[Any],
                           consequences_probs: List[float],
                           next_states_facts: List[Any],
@@ -321,6 +326,7 @@ def add_rule_consequences(rule_consequences: List[Any],
       updated_next_states_probs.append(
         consequences_probs[i]*next_states_probs[j])
   return updated_next_states, updated_next_states_probs
+
 
 def build_full_game(folder: str, identifier: str, threshold: int=1000,
                     max_rounds: int=10, verbose: bool=False) \

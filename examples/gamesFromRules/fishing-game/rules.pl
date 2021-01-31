@@ -70,7 +70,7 @@ rule(
   fishers,
   choice,
   1,
-  if role(A,fisher) and at(A,S) and won_race(A) then ~can(A,leave)
+  if role(A,fisher) and at(A,S) and ~lost_race(A) then ~can(A,leave)
   where [fishing_spot(S)]
 ).
 
@@ -140,8 +140,8 @@ rule(
   control,
   1,
   if does(F1,go_to_spot(S)) and does(F2,go_to_spot(S))
-  then [lost_race(F1) and won_race(F2) withProb P1,
-        lost_race(F2) and won_race(F1) withProb P2]
+  then [lost_race(F1) withProb P1,
+        lost_race(F2) withProb P2]
   where [F1@<F2,fishing_spot(S),
          speed(F1,X1),speed(F2,X2),
          {P1=X1/(X1+X2)},{P2=X2/(X1+X2)}]
@@ -161,7 +161,7 @@ rule(
   fishers,
   control,
   2,
-  if does(F1,go_to_spot(S)) and does(F2,go_to_spot(S)) and announced(F1,S)
-  then [lost_race(F2) and won_race(F1) withProb 1]
-  where []
+  if announced(F1,S) and does(F1,go_to_spot(S)) and does(F2,go_to_spot(S))
+  then [lost_race(F2) withProb 1]
+  where [F1\=F2]
 ).
