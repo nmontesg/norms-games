@@ -57,7 +57,7 @@ rule(
 ).
 
 % first-in-time, first-in-right rules
-% the looser of the race cannot stay
+% the looser of the race cannot stay <==> must leave
 rule(
   fishers,
   choice,

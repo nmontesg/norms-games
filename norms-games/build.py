@@ -179,7 +179,7 @@ def build_game_subtree(game: ExtensiveFormGame, actions: Dict[str, List[str]],
   actor_info_set = {expand_node}
   for actor, actions in actions.items():
     for n in actor_info_set:
-      game.set_node_position(n, actor)
+      game.set_node_player(n, actor)
     game.add_information_sets(actor, actor_info_set)
     next_actor_info_set = set()
     for n in actor_info_set:
@@ -387,7 +387,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
 
   # STEP 1: Get the participants and add them to the game
   participants = get_participants(identifier, threshold)
-  game.add_positions(*participants)
+  game.add_players(*participants)
   for p in participants:
     prolog.assertz("participates({})".format(p))
   logging.info("participants are: {}".format(participants))
@@ -532,7 +532,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
       # if the transition has not been deterministic, set node to chance and
       # add new nodes
       else:
-        game.set_node_position(n, 'chance')
+        game.set_node_player(n, 'chance')
         probability_distribution = {}
         for m, p in zip(next_states, next_states_prob):
           game.add_node(node_counter)

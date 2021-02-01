@@ -64,19 +64,18 @@ class ExtensiveFormGame:
     (values).
   is_perfect_informtion : bool, `True`
     The game is initialized as being of perfect information.
-  positions : List[Any]
-    List of positions in the game. In much of the literature, positions are
-    referred as 'players'. It is initialized empty.
+  players : List[Any]
+    List of players in the game. It is initialized empty.
   probability : Dict[Any, Dict[Tuple[Any, Any], float]]
     Probability distributions over the outgoing edges at every node where 
     chance takes an action. The keys are the nodes where chance acts. The 
     values are dictionaries mapping every outgoing edge from that node to its
     probability.
   turn_function : Dict[Any, Any]
-    Function that maps every non-terminal node to the positions whose turn it 
+    Function that maps every non-terminal node to the player whose turn it 
     is to take an action at the node.
   utility : Dict[Any, Dict[Any, float]]
-    For every terminal node, it maps the utility that the various positions 
+    For every terminal node, it maps the utility that the various players 
     (excluding chance) assign to it.
   
   See Also
@@ -86,8 +85,8 @@ class ExtensiveFormGame:
   """
   
   def __init__(self, **kwargs) -> None:    
-    # positions
-    self.positions = []
+    # players
+    self.players = []
     
     # game tree
     self.game_tree = nx.DiGraph()
@@ -126,21 +125,21 @@ class ExtensiveFormGame:
       return "Extensive form game: {}".format(self.name)
     return "Extensive form game"
   
-  def __check_position_in_game(self, position_id: Any) -> None:
-    r"""Check that the given position is actually in the game.
+  def __check_player_in_game(self, player_id: Any) -> None:
+    r"""Check that the given player is actually in the game.
 
     Parameters
     ----------
-    position_id : Any
+    player_id : Any
 
     Raises
     ------
     ValueError
-      If the position is not in the game.
+      If the player is not in the game.
 
     """
-    if position_id not in self.positions:
-      raise ValueError("position {} not in game".format(position_id))
+    if player_id not in self.players:
+      raise ValueError("player {} not in game".format(player_id))
         
   def __check_nonterminal_node(self, node_id: Any) -> None:
     r"""Check that a node is in the game tree.
@@ -174,43 +173,43 @@ class ExtensiveFormGame:
     if node_id not in self.game_tree.terminal_nodes:
       raise ValueError("node {} is not a terminal node".format(node_id))
   
-  def add_positions(self, *position_id: Any) -> None:
-    r"""Add a lists of positions to the game, encoded in any data structure.
+  def add_players(self, *players_id: Any) -> None:
+    r"""Add a lists of players to the game, encoded in any data structure.
 
     Parameters
     ----------
-    position_ids : List[Any]
-      Posititons to be added to the game. Exclude 'chance'.
+    players_id : List[Any]
+      Players to be added to the game. Exclude 'chance'.
       
     Raises
     ------
     ValueError
-      If 'chance' is among the positions to be added.
+      If 'chance' is among the players to be added.
 
     """
-    for p in position_id:
+    for p in players_id:
       if p == 'chance':
-        raise ValueError("position 'chance' is not added to the game")
-      self.positions.append(p)
+        raise ValueError("player 'chance' should not added to the game")
+      self.players.append(p)
       self.information_partition[p] = []
     
-  def add_node(self, node_id: Any, position_turn: Any=None,
+  def add_node(self, node_id: Any, player_turn: Any=None,
                is_root: bool=False) -> None:
     r"""Add a node the game tree.
     
     If the node is non-terminal and it is not a chance node, perfect 
     information is assumed. A set containing the single node is added to the
-    information partition of the position playing at the node.
+    information partition of the player playing at the node.
     
     Also, if the node is non-terminal (regardless of whether it is a chance
-    node or not), it is added to `turn_function` and its position is assigned.    
+    node or not), it is added to `turn_function` and its player is assigned.    
     
     Parameters
     ----------
     node_id : Any
       Node to be added.
-    position_turn : Any, optional
-      Whose position has the turn at the node. If None is given, it is assumed
+    player_turn : Any, optional
+      Whose player has the turn at the node. If None is given, it is assumed
       that the node is terminal. The default is None.
     is_root : bool, optional
       Whether the node is the root of the game tree. The default is False.
@@ -218,18 +217,18 @@ class ExtensiveFormGame:
     """    
     self.game_tree.add_node(node_id)
     
-    # if position turn given
-    if position_turn:
-      self.turn_function[node_id] = position_turn
-      # add position to game if not already there
-      if position_turn not in self.positions and position_turn != 'chance':
-        self.positions.append(position_turn)
+    # if player turn given
+    if player_turn:
+      self.turn_function[node_id] = player_turn
+      # add player to game if not already there
+      if player_turn not in self.players and player_turn != 'chance':
+        self.players.append(player_turn)
       # if not a chance node, assume perfect information
-      if position_turn != 'chance':
-        self.__check_position_in_game(position_turn)
-        self.information_partition[position_turn].append({node_id})
+      if player_turn != 'chance':
+        self.__check_player_in_game(player_turn)
+        self.information_partition[player_turn].append({node_id})
 
-    # if position turn not given, it is a terminal node
+    # if player turn not given, it is a terminal node
     else:
       self.game_tree.terminal_nodes.append(node_id)
 
@@ -237,23 +236,23 @@ class ExtensiveFormGame:
     if is_root:
       self.game_tree.root= node_id
       
-  def set_node_position(self, node_id: Any, position_turn: Any) -> None:
-    r"""Set the position at a node after it has been added to the game tree.
+  def set_node_player(self, node_id: Any, player_turn: Any) -> None:
+    r"""Set the player at a node after it has been added to the game tree.
     
     If the node had been designated as a terminal, remove it from that list.
 
     Parameters
     ----------
     node_id : Any
-      The node whose position changes.
-    position_turn : Any
-      The new position that takes turn at the node.
+      The node whose player changes.
+    player_turn : Any
+      The new player that takes turn at the node.
 
     """
-    self.turn_function[node_id] = position_turn
-    # add position to game if not already there
-    if position_turn not in self.positions and position_turn != 'chance':
-      self.positions.append(position_turn)
+    self.turn_function[node_id] = player_turn
+    # add player to game if not already there
+    if player_turn not in self.players and player_turn != 'chance':
+      self.players.append(player_turn)
     # delete node from terminal nodes if there
     if node_id in self.game_tree.terminal_nodes:
       self.game_tree.terminal_nodes.remove(node_id)
@@ -298,13 +297,13 @@ class ExtensiveFormGame:
     Returns
     -------
     Dict[Any, Set[Any]]
-      For every position in the game, including 'chance', the set of nodes 
-      where it is that position's turn to play.
+      For every player in the game, including 'chance', the set of nodes 
+      where it is that player's turn to play.
 
     """
     # initialize partitions to empty set
     theta_partition = {}
-    for p in self.positions:
+    for p in self.players:
       theta_partition[p] = set()
     theta_partition['chance'] = set()
     # add nodes to their corresponding partition
@@ -313,24 +312,24 @@ class ExtensiveFormGame:
       theta_partition[node_turn].add(n)
     return theta_partition
   
-  def get_position_utility(self, position_id: Any) -> Dict[Any, float]:
-    r"""Return the utility function for the given position.
+  def get_player_utility(self, player_id: Any) -> Dict[Any, float]:
+    r"""Return the utility function for the given player.
 
     Parameters
     ----------
-    position_id : Any
+    player_id : Any
 
     Returns
     -------
     Dict[Any, float]
       A map from every terminal node to the utility assigned to it by the
-      given position.
+      given player.
 
     """
-    self.__check_position_in_game(position_id)
+    self.__check_player_in_game(player_id)
     utility_i = {}
     for n in self.game_tree.terminal_nodes:
-      utility_i[n] = self.utility[n][position_id]
+      utility_i[n] = self.utility[n][player_id]
     return utility_i
   
   def get_available_actions(self, node: Any) -> Set[Any]:
@@ -352,13 +351,13 @@ class ExtensiveFormGame:
       actions.add(a)
     return actions
 
-  def get_choice_set(self, position_id: Any, information_set: Set[Any]) \
+  def get_choice_set(self, player_id: Any, information_set: Set[Any]) \
     -> Set[Any]:
-    r"""Get the choice set for some position at some information set.
+    r"""Get the choice set for some player at some information set.
     
     Parameters
     ----------
-    position_id : Any
+    player_id : Any
     information_set : Set[Any]
       The information set for which the choice set is to be retrieved.
 
@@ -368,15 +367,15 @@ class ExtensiveFormGame:
       List of edges outgoing from every node in the information set.
 
     """
-    self.__check_position_in_game(position_id)
-    assert information_set in self.information_partition[position_id], \
-      "information set {} does not belong to position {}'s information \
-        partition".format(information_set, position_id)
+    self.__check_player_in_game(player_id)
+    assert information_set in self.information_partition[player_id], \
+      "information set {} does not belong to player {}'s information \
+        partition".format(information_set, player_id)
     choice_set = self.get_available_actions(list(information_set)[0])
     return choice_set
   
   def get_utility_table(self) -> pd.DataFrame:
-    r"""Get a pandas dataframe with the utility for every position.
+    r"""Get a pandas dataframe with the utility for every player.
 
     Returns
     -------
@@ -386,79 +385,79 @@ class ExtensiveFormGame:
     data = {}
     terminal_nodes = self.game_tree.terminal_nodes
     data['Terminal node'] = terminal_nodes
-    for pos in self.positions:
+    for pos in self.players:
       data[pos.capitalize()] = [self.utility[n][pos] for n in
                                              terminal_nodes]
     utility_table = pd.DataFrame(data)
     utility_table.set_index('Terminal node', inplace=True)
     return utility_table
   
-  def add_information_sets(self, position_id: Any,
+  def add_information_sets(self, player_id: Any,
                                 *additional_info_sets: Set[Any]) -> None:
-    r"""Add an information set to the partition of the given position.
+    r"""Add an information set to the partition of the given player.
     
-    This method does not require that all nodes where ``position_id`` takes
+    This method does not require that all nodes where ``player_id`` takes
     an actions are included in some information set. It does check that all
     the nodes in the information partition to be added belong to the theta
-    partition of ``position_id``, and that they have no been previously
+    partition of ``player_id``, and that they have no been previously
     included in some other information set.
 
     Parameters
     ----------
-    position_id : Any
+    player_id : Any
       The game player whose information partition is to be expanded.
     *additional_info_sets : Set[Any]
       The information sets that are to be added.
 
     """
-    self.__check_position_in_game(position_id)
+    self.__check_player_in_game(player_id)
     
     self.is_perfect_information = False
     
     # check that the nodes in the information sets belong to the theta
-    # partition of the position
-    theta_partition = self.get_theta_partition()[position_id]
+    # partition of the player
+    theta_partition = self.get_theta_partition()[player_id]
     # check that the nodes in the additional information sets are not already
     # in the information partition
-    all_sets = self.information_partition[position_id]
+    all_sets = self.information_partition[player_id]
     info_sets_union = [x for y in all_sets for x in y]
     for s in additional_info_sets:
       for n in s:
         assert n in theta_partition, "node {} not in the turn function of \
-          position {}".format(n, position_id)
+          player {}".format(n, player_id)
         assert n not in info_sets_union, "node {} already in information \
-          partition of position {}".format(n, position_id)
+          partition of player {}".format(n, player_id)
     
     for s in additional_info_sets:
-      self.information_partition[position_id].append(s)
+      self.information_partition[player_id].append(s)
     
-  def set_information_partition(self, position_id: Any,
+  def set_information_partition(self, player_id: Any,
                                 *partition: Set[Any]) -> None:
-    r"""Set the information partition of the given position.
+    r"""Set the information partition of the given player.
     
     It is only useful to call this method when modeling games with imperfect
     information, otherwise when nodes are added to the game tree perfect
     information is assumed by default.
     
-    The method checks that all the nodes where it is the position's turn to 
+    The method checks that all the nodes where it is the player's turn to 
     move are included in the information partition, and viceversa, that at all 
-    the nodes in the various information sets it is the position's turn. Also,
+    the nodes in the various information sets it is the player's turn. Also,
     it checks that all the nodes in any given information set have the same 
     number of outgoing edges, and that they are non-terminal.
 
     Parameters
     ----------
-    position_id : Any
+    player_id : Any
     
     partition : Set[Any]
-      Information sets making up the position's information
+      Information sets making up the player's information
       partition.
 
     Raises
     ------
     AssertionError
       If the union of information sets does not correspon to the same nodes
-      where it is the position's turn to play, or
+      where it is the player's turn to play, or
       If some nodes in the same information set have different amounts of
       outgoing edges, or
       If some node is terminal.      
@@ -469,18 +468,18 @@ class ExtensiveFormGame:
     provided are disjunct.    
 
     """
-    self.__check_position_in_game(position_id)
+    self.__check_player_in_game(player_id)
     
     self.is_perfect_information = False
     
-    # check that all the nodes where the position plays are included in the 
+    # check that all the nodes where the player plays are included in the 
     # information partition
-    theta_position = self.get_theta_partition()[position_id]
+    theta_player = self.get_theta_partition()[player_id]
     nodes_in_info_sets = set()
     for p in partition:
       nodes_in_info_sets.update(p)
-    assert theta_position == nodes_in_info_sets, "the information set for\
-      position {} is missing some nodes".format(position_id)    
+    assert theta_player == nodes_in_info_sets, "the information set for\
+      player {} is missing some nodes".format(player_id)    
     
     for p in partition:
       # check that all nodes in information set have the same available 
@@ -495,9 +494,9 @@ class ExtensiveFormGame:
         self.__check_nonterminal_node(n)
     
     # replace current partition with the new one
-    self.information_partition[position_id] = []
+    self.information_partition[player_id] = []
     for p in partition:
-      self.information_partition[position_id].append(p)
+      self.information_partition[player_id].append(p)
   
   def set_probability_distribution(self, node_id: Any,
     prob_dist: Dict[Tuple[Any], float]) -> None:
@@ -550,21 +549,21 @@ class ExtensiveFormGame:
     self.set_probability_distribution(node_id, uniform_prob_dist)
      
   def set_utility(self, node_id: Any, utilities: Dict[Any, float]) -> None:
-    r"""Set the utility for all positions at the given terminal node.
+    r"""Set the utility for all players at the given terminal node.
 
     Parameters
     ----------
     node_id : Any
       A terminal node.
     utilities : Dict[Any, float]
-      Dictionary that maps every position in the game to the utility it
+      Dictionary that maps every player in the game to the utility it
       assigns to the terminal node.
 
     """
     self.__check_terminal_node(node_id)
     self.utility[node_id] = {}
     for pos, u in utilities.items():
-      self.__check_position_in_game(pos)
+      self.__check_player_in_game(pos)
       self.utility[node_id][pos] = u
    
 
@@ -575,7 +574,7 @@ def hierarchy_pos(G: Any, root: Any=None, width: float=1.,
     
     Licensed under Creative Commons Attribution-Share Alike.
     
-    If the graph is a tree this will return the positions to plot this in a 
+    If the graph is a tree this will return the players to plot this in a 
     hierarchical layout.
     
     Parameters
@@ -587,7 +586,7 @@ def hierarchy_pos(G: Any, root: Any=None, width: float=1.,
       The root node of current branch. The default is None.
       * If the tree is directed and this is not given, the root will be found
       and used.
-      * If the tree is directed and this is given, then  the positions will be 
+      * If the tree is directed and this is given, then  the players will be 
       just for the descendants of this node.
       * If the tree is undirected and not given, then a random choice will be 
       used.
@@ -609,7 +608,7 @@ def hierarchy_pos(G: Any, root: Any=None, width: float=1.,
     Returns
     -------
     Dict[Any, Tuple[float, float]]
-      Mapping from every node in the tree to its layout position.
+      Mapping from every node in the tree to its layout player.
       
     See Also
     --------
@@ -662,7 +661,7 @@ def hierarchy_pos(G: Any, root: Any=None, width: float=1.,
     return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
     
 
-def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
+def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
               utility_label_shift: float=0.03,
               fig_kwargs: Dict[str, Any]=None,
               node_kwargs: Dict[str, Any]=None,
@@ -685,9 +684,9 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
   ----------
   game : ExtensiveFormGame
     A game in extensive form to be plotted.
-  position_colors : Dict[Any, str]
-    Dictionary mapping every position in the game to the color to use for the
-    nodes where it is the position's turn. Color white is not recommended, as 
+  player_colors : Dict[Any, str]
+    Dictionary mapping every player in the game to the color to use for the
+    nodes where it is the player's turn. Color white is not recommended, as 
     it is reserved for chance nodes.
   utility_label_shift : float, optional
     To adjust the utility labels under the terminal nodes. The default is 0.03.
@@ -734,8 +733,8 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
   # if there is chance in the game and it does not have a color, set it to
   # white
   if game.get_theta_partition()['chance'] != set():
-    if 'chance' not in position_colors.keys():
-      position_colors['chance'] = 'white'
+    if 'chance' not in player_colors.keys():
+      player_colors['chance'] = 'white'
   
   # draw the game tree
   node_col = []
@@ -743,8 +742,8 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
     if n in game.game_tree.terminal_nodes:
       col = 'silver'
     else:
-      position = game.turn_function[n]
-      col = position_colors[position]
+      player = game.turn_function[n]
+      col = player_colors[player]
     node_col.append(col)
   nx.draw_networkx(game.game_tree, pos=pos, ax=ax, with_labels=True,
                    node_color=node_col, **node_kwargs, **edge_kwargs)
@@ -754,9 +753,9 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
   for e in game.game_tree.edges:
     label = game.game_tree.get_edge_data(*e)['action']
     parent_node = e[0]
-    parent_position = game.turn_function[parent_node]
+    parent_player = game.turn_function[parent_node]
     # if edge is action from chance, add probability
-    if parent_position == 'chance':
+    if parent_player == 'chance':
       prob = game.probability[parent_node][e]
       label += ' ({:.2f})'.format(prob)
     edge_labels[e] = label
@@ -766,8 +765,8 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
   
   # draw legend
   handles = []
-  for position, col in position_colors.items():
-    patch = mpatches.Patch(color=col, label=position, **patch_kwargs)
+  for player, col in player_colors.items():
+    patch = mpatches.Patch(color=col, label=player, **patch_kwargs)
     patch.set_edgecolor('black')
     handles.append(patch)
   ax.legend(handles=handles, **legend_kwargs)
@@ -776,17 +775,17 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
   if draw_utility:
     terminal_nodes = game.game_tree.terminal_nodes
     for n in terminal_nodes:
-      utility_label_position = (pos[n][0], pos[n][1]-utility_label_shift)
+      utility_label_player = (pos[n][0], pos[n][1]-utility_label_shift)
       utilities_node = ["{:.1f}".format(game.utility[n][p]) \
-                        for p in game.positions if p!='chance']
+                        for p in game.players if p!='chance']
       utility_label = '{}'.format('\n'.join(utilities_node))
-      plt.text(*utility_label_position, utility_label, **utility_label_kwargs)
+      plt.text(*utility_label_player, utility_label, **utility_label_kwargs)
     
   # draw archs between nodes in the same information set
-  for position in game.positions:
-    if position == 'chance':
+  for player in game.players:
+    if player == 'chance':
       continue
-    for info_set in game.information_partition[position]:
+    for info_set in game.information_partition[player]:
       if len(info_set) == 1:
         continue
       for u, v in combinations(info_set, r=2):
@@ -795,7 +794,7 @@ def plot_game(game: ExtensiveFormGame, position_colors: Dict[Any, str],
         width = abs(pos[u][0] - pos[v][0])
         height = 0.1
         arch = mpatches.Arc((x, y), width, height, theta1=0, theta2=180,
-                            edgecolor=position_colors[position], fill=False,
+                            edgecolor=player_colors[player], fill=False,
                             **info_sets_kwargs)
         ax.add_patch(arch)
   
@@ -820,7 +819,7 @@ def backward_induction(game: ExtensiveFormGame, h: Any,
   h : Any
     The root of the subgame where to start computing.
   u_dict : Dict[Any, Dict[Any, float]], optional
-    A dictionary of the values for every position at the nodes that have
+    A dictionary of the values for every player at the nodes that have
     already been revisited. The default is {}, and it should not be modified.
     It is necessary to perform the recursion.
 
@@ -828,27 +827,27 @@ def backward_induction(game: ExtensiveFormGame, h: Any,
   -------
   Dict[Any, Dict[Any, float]]
     A dictionary mapping, for each visited node (all the descendants of `h`),
-    the value assigned to it by every position in the game.
+    the value assigned to it by every player in the game.
 
   """
   if h in game.game_tree.terminal_nodes:
     u_dict[h] = game.utility[h]
     return u_dict
-  position = game.turn_function[h]
-  if position == 'chance':
-    u = {p:0. for p in game.positions}
+  player = game.turn_function[h]
+  if player == 'chance':
+    u = {p:0. for p in game.players}
   else:
-    u = {p:-float('inf') for p in game.positions}
+    u = {p:-float('inf') for p in game.players}
   u_dict[h] = u
   for e in game.game_tree.out_edges(h):
     child = e[1]
     u_child = backward_induction(game, child, u_dict)[child]
-    if position == 'chance':
+    if player == 'chance':
       prob_edge = game.probability[h][e]
-      for pos in game.positions:
+      for pos in game.players:
         u[pos] += prob_edge*u_child[pos]
     else:
-      if u_child[position] > u[position]:
+      if u_child[player] > u[player]:
         u = u_child
   u_dict[h] = u
   return u_dict
@@ -877,15 +876,15 @@ def subgame_perfect_equilibrium(game: ExtensiveFormGame) -> Dict[Any, Any]:
   for n in game.game_tree.nodes:
     if n in game.game_tree.terminal_nodes:
       continue
-    position = game.turn_function[n]
-    if position == 'chance':
+    player = game.turn_function[n]
+    if player == 'chance':
       continue
     next_value = -float('inf')
     action = None
     for e in game.game_tree.out_edges(n):
       child = e[1]
-      if values_dict[child][position] > next_value:
-        next_value = values_dict[child][position]
+      if values_dict[child][player] > next_value:
+        next_value = values_dict[child][player]
         action = (e, game.game_tree.get_edge_data(*e)['action'])
     SPE[n] = action
   return SPE
