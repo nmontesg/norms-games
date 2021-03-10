@@ -241,6 +241,7 @@ def get_control_rule_consequences(game: ExtensiveFormGame, identifier: str,
   sln = q_list[0]['L']
   return sln
 
+
 def is_rule_compatible(rule_consequences: List[Any], next_states: List[Any]) \
   -> bool:
   r"""Determine whether a control rule is to be considered.

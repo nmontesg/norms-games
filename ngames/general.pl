@@ -1,4 +1,4 @@
-/** <module> General rule interpreter
+/** <general.pl> General rule interpreter
 
  This script includes the definitions of common operators and of common
  predicates as dynamics and discontiguous. It also includes the predicates to

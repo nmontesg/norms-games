@@ -119,7 +119,7 @@ rule(
   control,
   0,
   if does(A,leave) and at(A,S1) then [at(A,S2) withProb 1]
-  where [fishing_spot(S2),S1\=S2]
+  where [fishing_spot(S1),fishing_spot(S2),S1\=S2]
 ).
 
 rule(
