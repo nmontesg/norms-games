@@ -7,6 +7,7 @@ Created on Sun Mar  7 22:13:18 2021
 """
 
 import streamlit as st
+from app_rules_boundary import rule_header
 
 @st.cache(allow_output_mutation=True)
 def cached_rules():
@@ -15,34 +16,7 @@ def cached_rules():
 choice_rules = cached_rules()
 
 def app():
-  st.markdown("""
-              ## ``rules.pl``
-              
-              In this file we rules and norms that structure the situation we
-              intend to model (relevant state variables, available actions and
-              their effects, etc).
-              
-              The rules follow the syntax:
-              
-                  rule(
-                      flag,
-                      type,
-                      priority,
-                      if Conditions then Consequences where Constraints
-                  ).
-              
-              
-              * ``flag``: an identifier for the situation we are modelling.
-              
-              * ``type``: the aspect of the action situation that the rule is
-              targeting.
-              
-              * ``priority``: 0 for the *default* rules, >0 for norms
-              overruling or adding on top of the default rules.
-              
-              * ``Conditions-Consequences-Constraints``: the actual content of
-              the rule.
-              """)
+  st.markdown(rule_header)
               
   # --------------------------------------------------------------------------
   

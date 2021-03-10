@@ -24,16 +24,16 @@ st.markdown("""
             
             A game is built from three information sources:
               
-              1. ``agents.pl`` what agents are there susceptible of entering
+              1. ``agents`` what agents are there susceptible of entering
               the situation, plus any additional attributes.
               
-              2. ``rules.pl`` the rules (of different types) structuring the
+              2. ``rules`` the rules (of different types) structuring the
               situation.
               
-              3. ``states.pl`` initial and termination conditions, plus some 
+              3. ``states`` initial and termination conditions, plus some 
               auxiliary information.
             """)
-
+            
 PAGES = {
     "agents": app_agents,
     "rules - boundary": app_rules_boundary,
@@ -42,7 +42,7 @@ PAGES = {
     "rules - control": app_rules_control,
     "states": app_states
 }
-st.sidebar.title('Navigation')
+st.sidebar.markdown("## Navigation")
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))
 page = PAGES[selection]
 page.app()
@@ -91,69 +91,66 @@ my_utility_label_kwargs = dict(horizontalalignment='center',
                                 fontsize=10)
 my_info_sets_kwargs = dict(linestyle='--', linewidth=2)
 
-@st.cache
-def make_game(rule_identifier, rule_threshold, max_rounds):
-  game = build_full_game(".", identifier=rule_identifier,
-                         threshold=rule_threshold, max_rounds=max_rounds,
-                         verbose=True)
-  return game
 
 if build_button:
-  # write agents.pl file
-  agents_file = open("agents.pl", "w+")
-  agents_file.close()
-  agents_file = open("agents.pl", "a+")
-  agents, agent_attributes = app_agents.agents, app_agents.agent_attributes
-  for a in agents:
-    agents_file.write("agent({}).\n".format(a))
-  agents_file.write("\n")
-  for at in agent_attributes:
-    agents_file.write("{}.\n".format(at))
-  agents_file.close()
+  # # write agents.pl file
+  # agents_file = open("agents.pl", "w+")
+  # agents_file.close()
+  # agents_file = open("agents.pl", "a+")
+  # agents, agent_attributes = app_agents.agents, app_agents.agent_attributes
+  # for a in agents:
+  #   agents_file.write("agent({}).\n".format(a))
+  # agents_file.write("\n")
+  # for at in agent_attributes:
+  #   agents_file.write("{}.\n".format(at))
+  # agents_file.close()
   
-  # write rules.pl file
-  all_rules = app_rules_boundary.boundary_rules + \
-    app_rules_position.position_rules + \
-    app_rules_choice.choice_rules + \
-    app_rules_control.control_rules
-  rules_file = open("rules.pl", "w+")
-  rules_file.close()
-  rules_file = open("rules.pl", "a+")
-  rules_file.write(":- use_module(library(clpr)).\n\n")
-  for r in all_rules:
-    rules_file.write("{}\n\n".format(r))
+  # # write rules.pl file
+  # all_rules = app_rules_boundary.boundary_rules + \
+  #   app_rules_position.position_rules + \
+  #   app_rules_choice.choice_rules + \
+  #   app_rules_control.control_rules
+  # rules_file = open("rules.pl", "w+")
+  # rules_file.close()
+  # rules_file = open("rules.pl", "a+")
+  # rules_file.write(":- use_module(library(clpr)).\n\n")
+  # for r in all_rules:
+  #   rules_file.write("{}\n\n".format(r))
     
-  rules_file.close()
+  # rules_file.close()
   
-  # write states.pl file
-  states_file = open("states.pl", "w+")
-  states_file.close()
-  states_file = open("states.pl", "a+")
+  # # write states.pl file
+  # states_file = open("states.pl", "w+")
+  # states_file.close()
+  # states_file = open("states.pl", "a+")
   
-  dynamic_predicates = app_states.dynamic_predicates
-  states_file.write("dynamic :- {}.".format(', '.join(dynamic_predicates)))
-  states_file.write("\n\n")
+  # dynamic_predicates = app_states.dynamic_predicates
+  # states_file.write("dynamic :- {}.".format(', '.join(dynamic_predicates)))
+  # states_file.write("\n\n")
   
-  biophysical_features = app_states.biophysical_features
-  for b in biophysical_features:
-    states_file.write("{}.\n".format(b))
-  states_file.write("\n")
+  # biophysical_features = app_states.biophysical_features
+  # for b in biophysical_features:
+  #   states_file.write("{}.\n".format(b))
+  # states_file.write("\n")
   
-  initial_conditions = app_states.initial_conditions
-  for ini in initial_conditions:
-    states_file.write("{}.\n".format(ini))
-  states_file.write("\n")
+  # initial_conditions = app_states.initial_conditions
+  # for ini in initial_conditions:
+  #   states_file.write("{}.\n".format(ini))
+  # states_file.write("\n")
   
-  termination_conditions = app_states.terminal_conditions
-  for t in termination_conditions:
-    states_file.write("terminal :- {}.\n".format(t))
-  states_file.write("\n")
+  # termination_conditions = app_states.terminal_conditions
+  # for t in termination_conditions:
+  #   states_file.write("terminal :- {}.\n".format(t))
+  # states_file.write("\n")
 
-  compatibility_predicates = app_states.compatibility_predicates[-1]
-  states_file.write("{}\n".format(compatibility_predicates))
-  states_file.close()
+  # compatibility_predicates = app_states.compatibility_predicates[-1]
+  # states_file.write("{}\n".format(compatibility_predicates))
+  # states_file.close()
   
-  game = make_game(rule_identifier, rule_threshold, max_rounds)
+  game = build_full_game(folder='.',
+                         identifier=rule_identifier,
+                         threshold=rule_threshold,
+                         max_rounds=max_rounds)
 
   # fig = plot_game(game,
   #                 player_colors,

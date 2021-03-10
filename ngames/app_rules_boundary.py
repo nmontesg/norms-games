@@ -8,15 +8,8 @@ Created on Sun Mar  7 22:10:40 2021
 
 import streamlit as st
 
-@st.cache(allow_output_mutation=True)
-def cached_rules():
-  return []
-
-boundary_rules = cached_rules()
-
-def app():
-  st.markdown("""
-              ## ``rules.pl``
+rule_header = """
+              ## ``rules``
               
               In this file we rules and norms that structure the situation we
               intend to model (relevant state variables, available actions and
@@ -28,7 +21,9 @@ def app():
                       flag,
                       type,
                       priority,
-                      if Conditions then Consequences where Constraints
+                      if Conditions
+                      then Consequences
+                      where Constraints
                   ).
               
               
@@ -42,7 +37,17 @@ def app():
               
               * ``Conditions-Consequences-Constraints``: the actual content of
               the rule.
-              """)
+              """
+
+
+@st.cache(allow_output_mutation=True)
+def cached_rules():
+  return []
+
+boundary_rules = cached_rules()
+
+def app():
+  st.markdown(rule_header)
               
   # --------------------------------------------------------------------------
   

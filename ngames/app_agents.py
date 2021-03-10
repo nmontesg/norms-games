@@ -21,7 +21,7 @@ agent_attributes = cached_agent_attributes()
 
 def app():
   st.markdown("""
-              ## ``agents.pl``
+              ## ``agents``
               """)
               
   # --------------------------------------------------------------------------
