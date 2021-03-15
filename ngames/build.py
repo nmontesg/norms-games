@@ -330,7 +330,8 @@ def add_rule_consequences(rule_consequences: List[Any],
 
 
 def build_full_game(folder: str, identifier: str, threshold: int=1000,
-                    max_rounds: int=10, verbose: bool=False) \
+                    max_rounds: int=10, module: str="default", 
+                    verbose: bool=False) \
   -> ExtensiveFormGame:
   r"""Build a complete game tree from an action situation Prolog description.
 
