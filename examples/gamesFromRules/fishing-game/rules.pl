@@ -85,6 +85,7 @@ rule(
   then can(A,announce_spot(S))
   where [fishing_spot(S),A\=B]
 ).
+
 rule(
   fishers,
   choice,
