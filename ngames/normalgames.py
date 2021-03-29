@@ -281,7 +281,7 @@ class NormalFormGame:
     rewards = tuple(0 for _ in range(self.num_players))
     players_actions = [mixed_strat.keys() for mixed_strat in args]
     pure_action_profiles = product(*players_actions)
-    # print(list(pure_action_profiles))
+
     for pap in pure_action_profiles:
       probabilities = [args[i][a] for i, a in enumerate(pap)]
       joint_probability = np.prod(probabilities)
@@ -300,7 +300,7 @@ class NormalFormGame:
 
     """
     if self.num_players != 2:
-      return
+      return "Normal Form Game"
     actions1 = self.action_to_index[0].keys()
     actions2 = self.action_to_index[1].keys()
     numpy_matrix = np.empty(shape=(len(actions1), len(actions2)))*np.nan

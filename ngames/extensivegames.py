@@ -950,3 +950,6 @@ def DFS_equilibria_paths(game: ExtensiveFormGame, h: Any,
   else:
     path_store.append((path, probability))
     
+    
+if __name__ == '__main__':
+  pass

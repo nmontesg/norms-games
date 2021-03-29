@@ -228,6 +228,7 @@ def get_control_rule_consequences(game: ExtensiveFormGame, identifier: str,
   """
   # assert the actions to get to that node
   path = nx.bidirectional_shortest_path(game.game_tree, expand_node, n)
+  
   for i in range(len(path[:-1])):
     who = game.turn_function[path[i]]
     what = game.game_tree.get_edge_data(path[i], path[i+1])
