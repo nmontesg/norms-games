@@ -35,8 +35,8 @@ class NormalFormGame:
 
   Parameters
   ----------
-  num_players : int
-    The number of players in the game.
+  players : List[Any]
+    The list of players that participate in the game.
   actions : List[Tuple[Any, ...]]
     A list of tuples. Each tuple corresponds to the domain of actions (or
     'pure' strategies) available to each player in order, *i.e.* actions for 
@@ -74,10 +74,11 @@ class NormalFormGame:
   
   """
   
-  def __init__(self, num_players: int, actions: List[Tuple[Any, ...]],
+  def __init__(self, players: List[Any], actions: List[Tuple[Any, ...]],
                payoff_function: Dict[Tuple[Any, ...], Tuple[float, ...]],
                **kwargs) -> None:
-    self.num_players = num_players
+    self.players = players
+    self.num_players = len(self.players)
     
     # assign actions to players
     if len(actions) != self.num_players:
@@ -289,6 +290,101 @@ class NormalFormGame:
       rewards = tuple(r+joint_probability*jr for r, jr in
                       zip(rewards, joint_rewards))
     return rewards
+
+  def switch_incentive(self, player: Any, action: Any,
+                       mixed_strategy: Dict[Any, Dict[Any, float]]) -> float:
+    r"""Compute the incentive for a player to switch to a pure strategy.
+    
+    Given a general mixed strategy profile, compute the incentive of
+    ``player`` to switch to a pure strategy where ``action`` is played. It
+    corresponds to the formula:
+      
+    .. math::
+      
+      c_{i}^{j}(s) = u_i(a_{j}^{i}, s_{-j}) - u_i(s) \\
+      d_{i}^{j}(s) = max(c_{i}^{j}(s), 0)
+    
+    where the subindex corresponds to the :math`i`-th player and the
+    superindex corresponds to its :math`j`-th action.
+
+    Parameters
+    ----------
+    player : Any
+      The player for whom the incentive is computed.
+    action : Any
+      The action that the player is tempted of swictching to as a pure
+      strategy.
+    mixed_strategy : Dict[Any, Dict[Any, float]]
+      The original mixed strategy for all players.
+
+    Returns
+    -------
+    float
+      :math:`d_{i}^{j}(s)`.
+      
+    References
+    ----------
+    Shohan, Y., & Leyton-Browm, K. (2009). Computing Solution Concepts of
+    Normal-Form Games. In Multiagent Systems: Algorithmic, Game-Theoretic,
+    and Logical Foundations (pp. 87–112). Cambridge University Press.
+
+    """
+    for ms in mixed_strategy.values():
+      self.__check_valid_mixed_strategy(ms)
+    
+    # utility under the original mixed strategy
+    ms = [mixed_strategy[p] for p in self.players]
+    mixed_strat_utility = self.mixed_strategies_rewards(*ms)
+    
+    # utility if player switches to pure strategy
+    player_index = self.players.index(player)
+    player_pure_strat = {a:0 for a in self.player_actions[player_index]}
+    player_pure_strat[action] = 1
+        
+    switch_strat = [mixed_strategy[p] for p in self.players]
+    switch_strat[player_index] = player_pure_strat
+    switch_strat_utility = self.mixed_strategies_rewards(*switch_strat)
+
+    c = switch_strat_utility[player_index] - mixed_strat_utility[player_index]
+    if c>0:
+      return c
+    return 0.
+  
+  def incentive_target_function(self, 
+    mixed_strategy: Dict[Any, Dict[Any, float]]) -> float:
+    r"""Compute the target function to minimize the incentive to swicth.
+    
+    Compute the target function that is to be minimised when all players do
+    not have an incentive to switch from the equilibrium mixed strategy.
+    
+    .. math::
+      
+      f(s) = \sum\limits_{i \in G} \sum\limits_{j \in A_j} (d_i^j(s))^2 
+
+    Parameters
+    ----------
+    mixed_strategy : Dict[Any, Dict[Any, float]]
+      The mixed strategy for which the total switching incentive is being
+      computed.
+
+    Returns
+    -------
+    float
+      :math:`f(s)`.
+      
+    References
+    ----------
+    Shohan, Y., & Leyton-Browm, K. (2009). Computing Solution Concepts of
+    Normal-Form Games. In Multiagent Systems: Algorithmic, Game-Theoretic,
+    and Logical Foundations (pp. 87–112). Cambridge University Press.
+
+    """
+    f = 0.
+    for n, p in enumerate(self.players):
+      for a in self.player_actions[n]:
+        incentive = self.switch_incentive(p, a, mixed_strategy)
+        f += incentive**2
+    return f
     
   def __str__(self) -> str:
     r"""For printing the game to console, only for two-player games.
@@ -315,7 +411,7 @@ class NormalFormGame:
 R, T, S, P = 6., 9., 0., 3.
 
 prisoners_dilemma = NormalFormGame(
-  num_players=2,
+  players=['alice', 'bob'],
   actions=[(True, False)]*2,
   payoff_function = {
     (True, True): (R, R),
@@ -326,7 +422,7 @@ prisoners_dilemma = NormalFormGame(
 )
 
 rock_paper_scissors = NormalFormGame(
-  num_players=2,
+  players=['alice', 'bob'],
   actions=[('Rock', 'Paper', 'Scissors')]*2,
   payoff_function={
     ('Rock', 'Rock'): (0, 0),
@@ -343,7 +439,7 @@ rock_paper_scissors = NormalFormGame(
 
 if __name__ == '__main__':
   ex = NormalFormGame(
-    num_players=2,
+    players=['alice', 'bob'],
     actions=[('T', 'B'), ('L', 'C', 'R')],
     payoff_function={
       ('T','L'): (0,1),
