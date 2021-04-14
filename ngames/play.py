@@ -27,14 +27,6 @@ from pyswip import Prolog
 from copy import deepcopy
 from pathlib import Path
 
-__author__ = "Nieves Montes"
-__copyright__ = "Copyright 2020, Nieves Montes"
-__credits__ = ["Nieves Montes"]
-__license__ = "MIT"
-__version__ = "0.0.1"
-__maintainer__ = "Nieves Montes"
-__email__ = "nmontes@iiia.csic.es"
-__status__ = "Development"
 
 explanation = "Simulate the interaction agents in an action arena governed \
   by the rules provided in the directory's Prolog files."

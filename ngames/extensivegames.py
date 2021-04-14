@@ -27,14 +27,6 @@ from itertools import combinations
 from copy import deepcopy
 from typing import Any, Dict, List, Set, Tuple
 
-__author__ = "Nieves Montes"
-__copyright__ = "Copyright 2020, Nieves Montes"
-__credits__ = ["Nieves Montes"]
-__license__ = "MIT"
-__version__ = "0.0.1"
-__maintainer__ = "Nieves Montes"
-__email__ = "nmontes@iiia.csic.es"
-__status__ = "Development"
 
 class ExtensiveFormGame:
   r"""Implementation of a game in extensive form.

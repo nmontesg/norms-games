@@ -15,14 +15,6 @@ from extensivegames import ExtensiveFormGame
 from copy import deepcopy
 from typing import List, Dict, Tuple, Set, Any
 
-__author__ = "Nieves Montes"
-__copyright__ = "Copyright 2020, Nieves Montes"
-__credits__ = ["Nieves Montes"]
-__license__ = "MIT"
-__version__ = "0.0.1"
-__maintainer__ = "Nieves Montes"
-__email__ = "nmontes@iiia.csic.es"
-__status__ = "Development"
 
 prolog = Prolog()
 
