@@ -1,0 +1,2 @@
+agent(alice).
+agent(bob).
