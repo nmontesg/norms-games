@@ -29,12 +29,14 @@
 :- op(400, xfx, where).
 :- discontiguous (if)/1, (then)/2, (where)/2.
 
-:- op(300, xfy, or).
+% :- op(300, xfy, or).
 :- op(200, xfy, and).
-:- op(175, xfy, xor).
+% :- op(175, xfy, xor).
 :- op(150, fx, ~). % operator for ``strong'' negation
-:- dynamic or/2, and/2, xor/2, (~)/1.
-:- discontiguous (or)/2, (and)/2, (xor)/2, (~)/1.
+:- dynamic and/2, (~)/1.
+:- discontiguous (and)/2, (~)/1.
+% :- dynamic or/2, and/2, xor/2, (~)/1.
+% :- discontiguous (or)/2, (and)/2, (xor)/2, (~)/1.
 
 % operator to express the probability of effects
 :- op(350, yfx, withProb).
@@ -49,24 +51,24 @@ query(A and B) :-
  query(A),
  query(B).
 
-query(A or B) :-
- query(A),!
- ;
- query(B).
+% query(A or B) :-
+%  query(A),!
+%  ;
+%  query(B).
+%
+% query(A xor B) :-
+%   query(A),
+%   query(~B),!
+%   ;
+%   query(~A),
+%   query(B).
 
-query(A xor B) :-
-  query(A),
-  query(~B),!
-  ;
-  query(~A),
-  query(B).
-
-% A is true ==> ~A is false
-query(~A) :-
-  query(A),fail.
-% A is false ==> ~A is true
-query(~A) :-
-  \+query(A).
+% % A is true ==> ~A is false
+% query(~A) :-
+%   query(A),fail.
+% % A is false ==> ~A is true
+% query(~A) :-
+%   \+query(A).
 
 % query_rule/1
 % query_rule(?Rule): True if Rule is active given the current facts.

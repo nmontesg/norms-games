@@ -18,6 +18,7 @@ Sociedad Matemática Española, 2010. https://doi.org/10.1016/j.geb.2010.12.006.
 """
 
 import networkx as nx
+from networkx.algorithms.simple_paths import all_simple_edge_paths
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -182,8 +183,9 @@ class ExtensiveFormGame:
     for p in players_id:
       if p == 'chance':
         raise ValueError("player 'chance' should not added to the game")
-      self.players.append(p)
-      self.information_partition[p] = []
+      if p not in self.players:  
+        self.players.append(p)
+        self.information_partition[p] = []
     
   def add_node(self, node_id: Any, player_turn: Any=None,
                is_root: bool=False) -> None:
@@ -557,6 +559,40 @@ class ExtensiveFormGame:
     for pos, u in utilities.items():
       self.__check_player_in_game(pos)
       self.utility[node_id][pos] = u
+      
+  def get_action_sequence(self, terminal_node: Any) -> \
+    Tuple[List[Tuple[str,str]], float]:
+    r"""Get the sequence of actions and probability to a terminal node.
+
+    Parameters
+    ----------
+    terminal_node : Any
+      The terminal node to get the sequence of actions from the root.
+
+    Returns
+    -------
+    action_sequence : List[Tuple[str,str]]
+      The sequence of action from the root to the terminal node, as a list of
+      tuples of (player, action).
+    probability : float
+      The probability of the sequence of actions.
+
+    """
+    self.__check_terminal_node(terminal_node)
+    paths = list(all_simple_edge_paths(self.game_tree, self.game_tree.root,
+                                       terminal_node))
+    assert len(paths) == 1, "path search has not return just one single path"
+    path = paths[0]
+    action_sequence = []
+    probability = 1
+    for (n1, n2) in path:
+      active_player = self.turn_function[n1]
+      if active_player == 'chance':
+        probability *= self.probability[n1][(n1, n2)]
+        continue
+      action = self.game_tree.get_edge_data(n1, n2)['action']
+      action_sequence.append((active_player, action))
+    return action_sequence, probability
    
 
 def hierarchy_pos(G: Any, root: Any=None, width: float=1.,

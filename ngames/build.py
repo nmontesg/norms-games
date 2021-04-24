@@ -505,7 +505,6 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
             s.append(f)
             logging.info("keeping fact {} in potential next state {}\n"\
                          .format(f, s))
-        
 
       logging.info("Potential states from node {}:".format(n))
       for s, p in zip(next_states, next_states_prob):
