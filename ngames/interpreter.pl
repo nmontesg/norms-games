@@ -104,49 +104,27 @@ process_consequences(ConseqList,OldPartList,NewPartList) :-
   process_consequences(T,IntPartList,NewPartList).
 
 
-/*** predicates to find the participants in the action situation ***/
+/*** predicates to find the participants, roles and actions ***/
 
-% get_participants/3
-% get_participants(+ID,+Threshold,-PartList): It return the list of agents
-%   PartList who are participants given the boundary rules whose priority does
-%   not exceed Threshold, that apply in the action situation identified by ID.
-get_participants(ID,Threshold,PartList) :-
-  find_consequences(ID,boundary,Threshold,L1),
+% get_simple_consequences/4
+% get_simple_consequences(+ID,+Type,+Threshold,-L): Intended to process the
+%   consequences of boundary, position and choice rules. It gets the
+%   consequences of the rules with ID and of Type, processess them to have
+%   rules of higher priority overwrite rules of lower priority, and finally
+%   deletes negated facts. It returns the result in a list of fluents.
+get_simple_consequences(ID,Type,Threshold,L) :-
+  find_consequences(ID,Type,Threshold,L1),
   process_consequences(L1,[],L2),
-  delete(L2,~(participates(_)),PartList).
+  delete(L2,~_,L).
 
+get_participants(ID,Threshold,L) :-
+  get_simple_consequences(ID,boundary,Threshold,L).
 
-/*** predicates to find the roles to which participants are assigned ***/
+get_roles(ID,Threshold,L) :-
+  get_simple_consequences(ID,position,Threshold,L).
 
-% get_roles/3
-% get_role(+ID,+Threshold,-RoleList): Return a list of key-value pairs, where
-%   the keys correspond to participants and values are lists of the roles that
-%   the participant is assigned to, in the action situtation identified by ID,
-%   and by the position rules whose priority does not exceed Threshold. It is
-%   possible for a participant to have multiple roles.
-%   Note: participant agents should be already asserted into the database with:
-%   ?- asserta(participant(Agent)).
-get_roles(ID,Threshold,RoleList) :-
-  find_consequences(ID,position,Threshold,L1),
-  process_consequences(L1,[],L2),
-  delete(L2,~role(_,_),RoleList).
-
-
-/*** predicates to find the available actions to each participant ***/
-
-% get_actions/3
-% get_action(+ID,+Threshold,-ActionList): Return a list of key-value pairs,
-%   where the keys correspond to participants and the values are lists of the
-%   actions available to those participants at the current state of the system,
-%   in the action situtation identified by ID, and by the choice rules whose
-%   priority does not exceed Threshold.
-%   Note: participant agents and their assigned roles should already be
-%   asserted into the system.
-get_actions(ID,Threshold,ActionList) :-
-  find_consequences(ID,choice,Threshold,L1),
-  process_consequences(L1,[],L2),
-  delete(L2,~can(_,_),ActionList).
-
+get_actions(ID,Threshold,L) :-
+  get_simple_consequences(ID,choice,Threshold,L).
 
 /*** predicates to find the next state based on the actions performed ***/
 
