@@ -77,8 +77,7 @@ where [\+announced(_,_),fishing_spot(S)]).
 
 % announcement is made
 rule(fishers,control,2,
-if does(F,announce_spot(S)) then [announced(F,S) withProb 1] where []
-).
+if does(F,announce_spot(S)) then [announced(F,S) withProb 1] where []).
 
 % if the fishers both go to the fishing spot declared by the announcer, the
 % announcer is guaranteed to get there first
