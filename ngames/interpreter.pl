@@ -113,8 +113,7 @@ process_consequences(ConseqList,OldPartList,NewPartList) :-
 get_participants(ID,Threshold,PartList) :-
   find_consequences(ID,boundary,Threshold,L1),
   process_consequences(L1,[],L2),
-  delete(L2,~(participates(_)),L3),
-  maplist(arg(1),L3,PartList).
+  delete(L2,~(participates(_)),PartList).
 
 
 /*** predicates to find the roles to which participants are assigned ***/
@@ -130,10 +129,7 @@ get_participants(ID,Threshold,PartList) :-
 get_roles(ID,Threshold,RoleList) :-
   find_consequences(ID,position,Threshold,L1),
   process_consequences(L1,[],L2),
-  delete(L2,~role(_,_),L3),
-  process_list(L3,[],L4),
-  keysort(L4,L5),
-  group_pairs_by_key(L5,RoleList).
+  delete(L2,~role(_,_),RoleList).
 
 
 /*** predicates to find the available actions to each participant ***/
@@ -149,10 +145,7 @@ get_roles(ID,Threshold,RoleList) :-
 get_actions(ID,Threshold,ActionList) :-
   find_consequences(ID,choice,Threshold,L1),
   process_consequences(L1,[],L2),
-  delete(L2,~can(_,_),L3),
-  process_list(L3,[],L4),
-  keysort(L4,L5),
-  group_pairs_by_key(L5,ActionList).
+  delete(L2,~can(_,_),ActionList).
 
 
 /*** predicates to find the next state based on the actions performed ***/
@@ -220,9 +213,3 @@ delete_key_gt([H|T],N,[H|L]) :-
 add_conseq(C1,Old,Old) :- member(C1,Old),!.
 add_conseq(C1,Old,Old) :- member(~C1,Old),!.
 add_conseq(C1,Old,[C1|Old]).
-
-process_list([],OldProcessedList,OldProcessedList).
-process_list([H|T],OldProcessedList,NewProcessedList) :-
-  H =.. [_,P,Obj],
-  append(OldProcessedList,[P-Obj],IntProcessedList),
-  process_list(T,IntProcessedList,NewProcessedList).

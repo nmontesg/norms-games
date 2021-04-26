@@ -42,8 +42,7 @@ def get_participants(identifier: str, threshold: int) -> List[str]:
   assert len(q_list) == 1, "Prolog found {} participant lists, not 1"\
     .format(len(q_list))
   sln = q_list[0]['L']
-  participants = [x.value for x in sln]
-  return participants
+  return sln
 
 
 def get_roles(identifier: str, threshold: int) -> Dict[str, List[str]]:
@@ -74,13 +73,7 @@ def get_roles(identifier: str, threshold: int) -> Dict[str, List[str]]:
   assert len(q_list) == 1, "Prolog found {} roles lists, not 1"\
     .format(len(q_list))
   sln = q_list[0]['L']
-  roles = {}
-  for x in sln:
-    participant = x.args[0].value
-    roles_list = x.args[1]
-    p_roles = [y.value for y in roles_list]
-    roles[participant] = p_roles
-  return roles
+  return sln
 
 
 def get_initial_conditions() -> List[str]:
@@ -133,9 +126,11 @@ def get_actions(identifier: str, threshold: int) -> Dict[str, List[str]]:
   actions = {}
   for x in sln:
     participant = x.args[0].value
-    actions_list = x.args[1]
-    p_actions = [y.value for y in actions_list]
-    actions[participant] = p_actions
+    action = x.args[1].value
+    try:
+      actions[participant].append(action)
+    except KeyError:
+      actions[participant] = [action]
   return actions
 
 
@@ -396,23 +391,26 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
 
   # STEP 1: Get the participants and add them to the game
   participants = get_participants(identifier, threshold)
-  game.add_players(*participants)
   for p in participants:
-    prolog.assertz("participates({})".format(p))
+    game.add_players(p.args[0].value)
+    prolog.assertz(p.value)
   logging.info("participants are: {}".format(participants))
   logging.info("")
-
+  
   # STEP 2: Assign the participants to roles
   roles = get_roles(identifier, threshold)
-  game.roles = roles
-  logging.info("the roles assigned to participants are:")
-  for p, p_roles in roles.items():
-    logging.info("{}:".format(p))
-    for role in p_roles:
-      prolog.assertz("role({},{})".format(p, role))
-      logging.info("\t{}".format(role))
-  logging.info("")
-
+  game.roles = {p:[] for p in game.players}
+  for r in roles:
+    player = r.args[0].value
+    role= r.args[1].value
+    try:
+      game.roles[player].append(role)
+    except KeyError:
+      game.roles[player] = [role]
+    prolog.assertz(r.value)
+  logging.info("the roles assigned to participants are: {}\n".\
+               format(game.roles))
+  
   # STEP 3: Get initial state and add it as root node to game
   initial_facts = get_initial_conditions()
   node_counter = 1
