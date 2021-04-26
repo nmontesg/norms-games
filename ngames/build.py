@@ -322,6 +322,20 @@ def add_rule_consequences(rule_consequences: List[Any],
   return updated_next_states, updated_next_states_probs
 
 
+def is_terminal() -> bool:
+  r"""Check if the termination conditions are met.
+
+  Returns
+  -------
+  bool
+
+  """
+  q = prolog.query("terminal")
+  list_q = list(q)
+  q.close()
+  return bool(len(list_q))
+
+
 def build_full_game(folder: str, identifier: str, threshold: int=1000,
                     max_rounds: int=10, module: str="default", 
                     verbose: bool=False) \
@@ -366,7 +380,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
 
   """
   script_path = Path(__file__).parent.absolute()
-  prolog.consult("{}/general.pl".format(script_path))
+  prolog.consult("{}/interpreter.pl".format(script_path))
   prolog.consult("{}/agents.pl".format(folder))
   prolog.consult("{}/rules.pl".format(folder))
   prolog.consult("{}/states.pl".format(folder))
@@ -426,11 +440,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
     logging.info("")
 
     # Check if the current node is terminal
-    q = prolog.query("terminal")
-    list_q = list(q)
-    q.close()
-    is_terminal = bool(len(list_q))
-    if is_terminal:
+    if is_terminal():
       logging.info("Termination conditions met at node {}\n\n"\
                    .format(expand_node))
       for f in expand_node_facts:
@@ -514,14 +524,23 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
       # add the potential new states to the game tree
       assert len(next_states) >= 1, "{} next state consequences found".\
         format(len(next_states))
+        
+      # Check if the actions taken in conjunction with the pre-transition
+      # state lead to termination
+      termination = is_terminal()
+      if termination:
+        logging.info("Termination conditions met at node when going from \
+                     node {} to node {}\n\n".format(expand_node, n))
+                     
       # if the transition has been deterministic, then we do not need to add
       # new nodes
       if len(next_states) == 1:
-        expand_queue.append(n)
-        logging.info("Node {} added to node queue\n".format(n))
         game.node_rounds[n] = game.node_rounds[expand_node]+1
         next_states[0].sort()
         game.node_info[n] = next_states[0]
+        if not termination:
+          expand_queue.append(n)
+          logging.info("Node {} added to node queue\n".format(n))
 
       # if the transition has not been deterministic, set node to chance and
       # add new nodes
@@ -535,8 +554,9 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
           game.node_rounds[node_counter] = game.node_rounds[expand_node]+1
           m.sort()
           game.node_info[node_counter] = m
-          expand_queue.append(node_counter)
-          logging.info("Node {} added to node queue\n".format(node_counter))
+          if not termination:
+            expand_queue.append(node_counter)
+            logging.info("Node {} added to node queue\n".format(node_counter))
           node_counter += 1
         game.set_probability_distribution(n, probability_distribution)
 
