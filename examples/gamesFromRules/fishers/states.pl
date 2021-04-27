@@ -12,7 +12,7 @@ terminal :-
   F1\=F2,S1\=S2.
 terminal :- lost_fight(_).
 
-compatible(at(F,_),L) :- !,\+member(at(F,_),L).
-compatible(lost_fight(_),L) :- !,\+member(lost_fight(_),L).
-compatible(lost_race(_),L) :- !,\+member(lost_race(_),L).
+compatible(at(F,_),L) :- \+member(at(F,_),L).
+compatible(lost_fight(_),L) :- \+member(lost_fight(_),L).
+compatible(lost_race(_),L) :- \+member(lost_race(_),L).
 compatible(_,[]).

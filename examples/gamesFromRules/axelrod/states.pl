@@ -10,11 +10,8 @@ initially(payoff(P,0)) :- participates(P).
 % compatible/2
 % compatible(+NewFact, +ListOfFacts): Succeds if the term NewFact is compatible
 %   with the terms in ListOfFacts.
-compatible(seen(A,_),_) :- !,\+does(A,_).
-compatible(~seen(A,_),_) :- !,\+does(A,_).
-compatible(time(_),L) :- !,\+member(time(_),L).
-compatible(payoff(P,_),L) :- !,\+member(payoff(P,_),L).
-
-% Following clauses are intended for ground terms of arity 0.
-compatible(~F,L) :- !,\+member(F,L),\+member(~F,L).
-compatible(F,L) :- !,\+member(F,L),\+member(~F,L).
+compatible(seen(A,_),_) :- \+does(A,_).
+compatible(~seen(A,_),_) :- \+does(A,_).
+compatible(time(_),L) :- \+member(time(_),L).
+compatible(payoff(P,_),L) :- \+member(payoff(P,_),L).
+compatible(_,[]).
