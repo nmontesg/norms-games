@@ -5,7 +5,7 @@
 % boundary
 rule(ipd,boundary,0,if agent(A) then participates(A) where []).
 
-%position
+% position
 rule(ipd,position,0,if participates(A) then role(A,prisoner) where []).
 
 % choice
@@ -35,15 +35,15 @@ where [payoff(P1,X1),payoff(P2,X2),{Y1=X1+0},{Y2=X2+9}]).
 
 
 /*** Rules to limit the number of consecutive defections ***/
-rule(ipd,choice,1,
+rule(ipd,choice,0,
 if role(P,prisoner) then ~can(P,defect)
 where [consecutiveDefections(P,N),N>=2]).
 
-rule(ipd,control,1,
+rule(ipd,control,0,
 if does(P,defect) then [consecutiveDefections(P,M) withProb 1]
 where [consecutiveDefections(P,N),{M=N+1}]).
 
-rule(ipd,control,1,
+rule(ipd,control,0,
 if does(P,cooperate) then [consecutiveDefections(P,0) withProb 1] where []).
 
 

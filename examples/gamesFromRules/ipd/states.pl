@@ -11,12 +11,10 @@ initially(consecutiveDefections(P,0)) :- role(P,prisoner).
 terminal :- rounds(N),N>=3.
 
 % compatible/2
-% compatible(+NewFact, +ListOfFacts): Succeds if the term NewFact is compatible
-%   with the terms in ListOfFacts.
-compatible(payoff(P,_),L) :- \+member(payoff(P,_),L).
+% compatible(+NewFact, +ListOfFacts): Succeeds if the term NewFact is
+%   compatible with the terms in ListOfFacts.
+compatible(_,[]).
 compatible(rounds(_),L) :- \+member(rounds(_),L).
+compatible(payoff(P,_),L) :- \+member(payoff(P,_),L).
 compatible(consecutiveDefections(P,_),L) :-
   \+member(consecutiveDefections(P,_),L).
-
-% Anything is compatible if no facts have been introduced yet
-compatible(_,[]).

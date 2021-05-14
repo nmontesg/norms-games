@@ -42,33 +42,14 @@
 :- op(350, yfx, withProb).
 :- discontiguous (withProb)/2.
 
-/*** Meta-interpreter predicates ***/
+/*** Interpreter predicates ***/
 
-query(Q) :-
- call(Q).
+query(A) :-
+ call(A).
 
 query(A and B) :-
  query(A),
  query(B).
-
-% query(A or B) :-
-%  query(A),!
-%  ;
-%  query(B).
-%
-% query(A xor B) :-
-%   query(A),
-%   query(~B),!
-%   ;
-%   query(~A),
-%   query(B).
-
-% % A is true ==> ~A is false
-% query(~A) :-
-%   query(A),fail.
-% % A is false ==> ~A is true
-% query(~A) :-
-%   \+query(A).
 
 % query_rule/1
 % query_rule(?Rule): True if Rule is active given the current facts.
@@ -188,6 +169,7 @@ delete_key_gt([H|T],N,L) :-
 delete_key_gt([H|T],N,[H|L]) :-
   delete_key_gt(T,N,L).
 
-add_conseq(C1,Old,Old) :- member(C1,Old),!.
-add_conseq(C1,Old,Old) :- member(~C1,Old),!.
-add_conseq(C1,Old,[C1|Old]).
+add_conseq(C,Old,Old) :- member(C,Old),!.
+add_conseq(C,Old,Old) :- C=..[~,F|_],member(F,Old),!.
+add_conseq(C,Old,Old) :- member(~C,Old),!.
+add_conseq(C,Old,[C|Old]).
