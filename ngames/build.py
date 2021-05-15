@@ -20,7 +20,7 @@ prolog = Prolog()
 def build_game_round(identifier: str, threshold: int,
                      root_state_facts: List[str], expand_node: int,
                      node_counter: int) \
-  -> Tuple(ExtensiveFormGame, Dict[int, bool], int):
+  -> Tuple[ExtensiveFormGame, Dict[int, bool], int]:
   r"""Build a round of the game (i.e. all possible state transitions).
   
   Build a round of the game, i.e. a restricted form of an extensive-form
