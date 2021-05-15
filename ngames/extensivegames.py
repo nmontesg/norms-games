@@ -756,7 +756,6 @@ def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
   """
   pos = hierarchy_pos(game.game_tree, game.game_tree.root)
   fig, ax = plt.subplots(**fig_kwargs)
-  ax.set_axis_off()
   fig.patch.set_visible(False)
   
   # if there is chance in the game and it does not have a color, set it to

@@ -29,14 +29,10 @@
 :- op(400, xfx, where).
 :- discontiguous (if)/1, (then)/2, (where)/2.
 
-% :- op(300, xfy, or).
 :- op(200, xfy, and).
-% :- op(175, xfy, xor).
-:- op(150, fx, ~). % operator for ``strong'' negation
+:- op(150, fx, ~). % overwriting operator
 :- dynamic and/2, (~)/1.
 :- discontiguous (and)/2, (~)/1.
-% :- dynamic or/2, and/2, xor/2, (~)/1.
-% :- discontiguous (or)/2, (and)/2, (xor)/2, (~)/1.
 
 % operator to express the probability of effects
 :- op(350, yfx, withProb).
@@ -70,6 +66,18 @@ find_consequences(ID,Type,Threshold,L) :-
   keysort(L2,L3),
   reverse(L3,L).
 
+delete_key_gt([],_,[]) :- !.
+delete_key_gt([H|T],N,L) :-
+  H = Priority-_,
+  Priority>N,!,
+  delete_key_gt(T,N,L).
+delete_key_gt([H|T],N,[H|L]) :-
+  delete_key_gt(T,N,L).
+
+%%-----------------------------------------------------------------------------
+
+/*** predicates to find the participants, roles and actions ***/
+
 % process_consequences/3
 % process_consequences(+ConseqList,+OldPartList,?NewPartList): It gets the
 %   consequences of some rule type ConseqList and processes them in decreasing
@@ -84,8 +92,9 @@ process_consequences(ConseqList,OldPartList,NewPartList) :-
   add_conseq(V1,OldPartList,IntPartList),
   process_consequences(T,IntPartList,NewPartList).
 
-
-/*** predicates to find the participants, roles and actions ***/
+add_conseq(C,Old,Old) :- member(C,Old),!.
+add_conseq(C,Old,Old) :- member(~C,Old),!.
+add_conseq(C,Old,[C|Old]).
 
 % get_simple_consequences/4
 % get_simple_consequences(+ID,+Type,+Threshold,-L): Intended to process the
@@ -98,78 +107,97 @@ get_simple_consequences(ID,Type,Threshold,L) :-
   process_consequences(L1,[],L2),
   delete(L2,~_,L).
 
-get_participants(ID,Threshold,L) :-
-  get_simple_consequences(ID,boundary,Threshold,L).
+%%-----------------------------------------------------------------------------
 
-get_roles(ID,Threshold,L) :-
-  get_simple_consequences(ID,position,Threshold,L).
+/*** PROCESSING CONTROL RULES ***/
 
-get_actions(ID,Threshold,L) :-
-  get_simple_consequences(ID,choice,Threshold,L).
+/*** predicates to find whether a triggered control rule is compatible
+with the potential next states already established ***/
+
+% control_conseq_fact_compatible loops over the set of potential next states.
+control_conseq_fact_incompatible(_,[]) :- !.
+control_conseq_fact_incompatible(F,[S1|S2]) :-
+  incompatible(F,S1),
+  control_conseq_fact_incompatible(F,S2).
+
+% control_conseq_compatible loops over the facts that form a join consequence
+%   of a triggered control rule.
+control_conseq_incompatible(F1 and F2,S) :-
+  control_conseq_fact_incompatible(F1,S),
+  control_conseq_incompatible(F2,S).
+control_conseq_incompatible(F,S) :-
+  control_conseq_fact_incompatible(F,S).
+
+% control_rule_compatible loops over the joint consequences for a triggered
+%   control rule.
+control_rule_incompatible([],_).
+control_rule_incompatible([C withProb _|T],S) :-
+  control_conseq_incompatible(C,S),
+  control_rule_incompatible(T,S).
+
+
+/*** predicates to add the consequences of a single rule into the set of
+potential next states ***/
+
+add_rule_conseqs_to_next_states([],_,_,OldNextStates,OldNextP,OldNextStates,
+OldNextP).
+add_rule_conseqs_to_next_states([C withProb X|T],S,P,OldNextStates,OldNextP,
+NewNextStates,NewNextP) :-
+  add_joint_conseqs_to_next_states(C withProb X,S,P,NewS,NewP),
+  append(NewS,OldNextStates,IntNextStates),
+  append(NewP,OldNextP,IntNextP),
+  add_rule_conseqs_to_next_states(T,S,P,IntNextStates,IntNextP,NewNextStates,
+  NewNextP).
+
+add_joint_conseqs_to_next_states(_,[],[],[],[]) :- !.
+add_joint_conseqs_to_next_states(C withProb X,[OldS1|OldS2],[OldP1|OldP2],
+[NewS1|NewS2],[NewP1|NewP2]) :-
+  add_joint_conseqs_to_single_state(C withProb X,OldS1,OldP1,NewS1,NewP1),
+  add_joint_conseqs_to_next_states(C withProb X,OldS2,OldP2,NewS2,NewP2).
+
+
+add_joint_conseqs_to_single_state(C withProb X,State,Prob,NewState,NewProb) :-
+  joint_conseqs_to_list([],C,L),
+  append(State,L,NewState),
+  NewProb is X*Prob.
+
+% joint_conseqs_to_list turns a joint consequence statement (facts joined by
+%   the ``and'' operator) and turns it into a list of facts.
+joint_conseqs_to_list(Old,C1 and C2,New) :-
+  !,joint_conseqs_to_list([C1|Old],C2,New).
+joint_conseqs_to_list(Old,C1,[C1|Old]).
+
 
 /*** predicates to find the next state based on the actions performed ***/
+add_control_rules([],OldNextS,OldNextP,OldNextS,OldNextP).
+add_control_rules([_-Conseqs|T],OldNextS,OldNextP,NewNextS,NewNextP) :-
+  (control_rule_incompatible(Conseqs,OldNextS) ->
+    add_control_rules(T,OldNextS,OldNextP,NewNextS,NewNextP);
+    add_rule_conseqs_to_next_states(Conseqs,OldNextS,OldNextP,[],[],IntNextS,
+    IntNextP),
+    add_control_rules(T,IntNextS,IntNextP,NewNextS,NewNextP)).
 
-% process_control/3
-% process_control(+ID,+Threshold,-ProcessedList): process the consequences of
-%   all the control rules active in the action situation, identified by ID and
-%   whose priority does not exceed threshold, into the list ProcessedList,
-%   which has format:
-%   [Priority_1-[[[Fact_11,...],Prob_11],
-%                [[Fact_12,...],Prob_12],
-%                ...,
-%                [[Fact_1n,...],Prob_1n]],
-%    ...
-%    Priority_m-[[[Fact_m1,...],Prob_11],
-%                [[Fact_m2,...],Prob_12],
-%                ...,
-%                [[Fact_mk,...],Prob_1n]]]
-%   Note: the processed consequences of activated rules are returned in
-%   decreasing priority.
-process_control(ID,Threshold,ProcessedList) :-
+process_control(ID,Threshold,L1) :-
+  find_consequences(ID,control,Threshold,L1).
+
+
+/*** predicates to drag the compatible facts from the pre-transition state
+to the potential next states ***/
+drag_compatible_fact(PreTranFact,NewState,NewState) :-
+  incompatible(PreTranFact,NewState),!.
+drag_compatible_fact(PreTranFact,NewState,[PreTranFact|NewState]).
+
+drag_compatible_state([],NewState,NewState).
+drag_compatible_state([F|T],NewState,UpdatedNewState) :-
+  drag_compatible_fact(F,NewState,Int),
+  drag_compatible_state(T,Int,UpdatedNewState).
+
+update_all_new_states(_,[],[]).
+update_all_new_states(PreTranState,[S1|S2],[NewS1|NewS2]) :-
+  drag_compatible_state(PreTranState,S1,NewS1),
+  update_all_new_states(PreTranState,S2,NewS2).
+
+get_control_consequences(ID,Threshold,PreTranState,PostTranStates,Probs) :-
   find_consequences(ID,control,Threshold,L1),
-  maplist(process_control_rule,L1,L2),
-  keysort(L2,L3),
-  reverse(L3,ProcessedList).
-
-% process_control_rule/2
-% process_control_rule(+(Flag-ConsequencesList),-(Flag-NewList)): process all
-%   the consequences of any instantiation of a control rule into NewList, and
-%   include its priority flag.
-process_control_rule(Flag-List,Flag-NewList) :-
-  process_rule_consequence(List,[],NewList).
-
-% process_rule_consequence/3
-% process_rule_consequence(+ConsequencesList,+OldList,-NewList): process all
-%   the potential consequences of any instantiation of a control rule into the
-%   list NewList.
-%   Note: it is intended to be called with:
-%   ?- process_rule_consequence(ConsequencesList,[],NewList).
-process_rule_consequence([],OldList,OldList).
-process_rule_consequence([Fact withProb Prob|T],OldList,NewList) :-
-  process_one_consequence(Fact,L),
-  append(OldList,[[L,Prob]],IntList),
-  process_rule_consequence(T,IntList,NewList).
-
-% process_one_consequence/2
-% process_one_consequence(+Fact,-ProcessedList): process the single Fact of all
-%   the potential consequences of any instantiation of a control rule, which
-%   might consist of a conjunction of facts, into ProcessedList.
-process_one_consequence(Fact1 and Fact2,[Fact1|T]) :-
-  !,process_one_consequence(Fact2,T).
-process_one_consequence(Fact,[Fact]).
-
-
-/*** auxiliary predicates ***/
-
-delete_key_gt([],_,[]) :- !.
-delete_key_gt([H|T],N,L) :-
-  H = Priority-_,
-  Priority>N,!,
-  delete_key_gt(T,N,L).
-delete_key_gt([H|T],N,[H|L]) :-
-  delete_key_gt(T,N,L).
-
-add_conseq(C,Old,Old) :- member(C,Old),!.
-add_conseq(C,Old,Old) :- C=..[~,F|_],member(F,Old),!.
-add_conseq(C,Old,Old) :- member(~C,Old),!.
-add_conseq(C,Old,[C|Old]).
+  add_control_rules(L1,[[]],[1],L2,Probs),
+  update_all_new_states(PreTranState,L2,PostTranStates).

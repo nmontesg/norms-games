@@ -35,7 +35,7 @@ where [payoff(P1,X1),payoff(P2,X2),{Y1=X1+0},{Y2=X2+9}]).
 
 
 /*** Rules to limit the number of consecutive defections ***/
-rule(ipd,choice,0,
+rule(ipd,choice,1,
 if role(P,prisoner) then ~can(P,defect)
 where [consecutiveDefections(P,N),N>=2]).
 
