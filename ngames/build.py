@@ -18,85 +18,6 @@ from typing import List, Dict, Tuple, Set, Any
 
 prolog = Prolog()
 
-def get_participants(identifier: str, threshold: int) -> List[str]:
-  r"""Get the set of partiticipants.
-
-  Query the Prolog system to extract the list of participants allowed to take
-  part in the game according to the boundary rules.
-
-  Parameters
-  ----------
-  identifier : str
-    Identifier of the action situation under consideration.
-  threshold : int
-    Boundary rules of priority exceeding this threshold are not considered.
-
-  Returns
-  -------
-  participants : List[str]
-
-  """
-  q = prolog.query("get_participants({},{},L)".format(identifier, threshold))
-  q_list = list(q)
-  q.close()
-  assert len(q_list) == 1, "Prolog found {} participant lists, not 1"\
-    .format(len(q_list))
-  sln = q_list[0]['L']
-  return sln
-
-
-def get_roles(identifier: str, threshold: int) -> Dict[str, List[str]]:
-  r"""Get the roles that the participants assume.
-
-  Query the Prolog system to extract the list of roles for every participant,
-  according to the position rules. One participant may assume several roles.
-  An agent who has been denoted as a participant but is not assigned any role
-  is equivalent to not participating at all.
-
-  Parameters
-  ----------
-  identifier : str
-    Identifier of the action situation under consideration.
-  threshold : int
-    Position rules of priority exceeding this threshold are not considered.
-
-  Returns
-  -------
-  roles : Dict[str, List[str]]
-    A dictionary with participants as keys and their list of assigned roles
-    as values.
-
-  """
-  q = prolog.query("get_roles({},{},L)".format(identifier, threshold))
-  q_list = list(q)
-  q.close()
-  assert len(q_list) == 1, "Prolog found {} roles lists, not 1"\
-    .format(len(q_list))
-  sln = q_list[0]['L']
-  return sln
-
-
-def get_initial_conditions() -> List[str]:
-  r"""Get the initial conditions of the action situation.
-
-  Query the Prolog system to extract the initial conditions declared with the
-  predicate initially/1. This call must be performed once the participants and
-  their assigned roles have been asserted into the system.
-
-  Returns
-  -------
-  initial_facts : List[str]
-
-  """
-  q = prolog.query("initially(Fact)")
-  initial_facts = []
-  for sln in q:
-    initial_facts.append(sln['Fact'])
-  q.close()
-  initial_facts.sort()
-  return initial_facts
-
-
 def get_actions(identifier: str, threshold: int) -> Dict[str, List[str]]:
   r"""Get the available actions for all the participants.
 
@@ -390,17 +311,28 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
     logging.basicConfig(format="%(levelname)s: %(message)s")
 
   # STEP 1: Get the participants and add them to the game
-  participants = get_participants(identifier, threshold)
-  for p in participants:
+  q = prolog.query("get_simple_consequences({},position,{},L)".format(
+    identifier, threshold))
+  q_list = list(q)
+  q.close()
+  assert len(q_list) == 1, "Prolog found {} participant lists, not 1"\
+    .format(len(q_list))
+  phi = q_list[0]['L']
+  for p in phi:
     game.add_players(p.args[0].value)
     prolog.assertz(p.value)
-  logging.info("participants are: {}".format(participants))
+  logging.info("participants are: {}".format(phi))
   logging.info("")
   
   # STEP 2: Assign the participants to roles
-  roles = get_roles(identifier, threshold)
+  q = prolog.query("get_simple_consequences({},position,{},L)".format(identifier, threshold))
+  q_list = list(q)
+  q.close()
+  assert len(q_list) == 1, "Prolog found {} roles lists, not 1"\
+    .format(len(q_list))
+  rho = q_list[0]['L']
   game.roles = {p:[] for p in game.players}
-  for r in roles:
+  for r in rho:
     player = r.args[0].value
     role= r.args[1].value
     try:
@@ -412,10 +344,15 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
                format(game.roles))
   
   # STEP 3: Get initial state and add it as root node to game
-  initial_facts = get_initial_conditions()
+  q = prolog.query("initially(Fact)")
+  initial_facts = []
+  for sln in q:
+    initial_facts.append(sln['Fact'])
+  q.close()
+  initial_facts.sort()
   node_counter = 1
   game.add_node(node_counter, is_root=True)
-  game.node_info = {node_counter: initial_facts}
+  game.state_fluents = {node_counter: initial_facts}
   game.node_rounds = {node_counter: 0}
   expand_queue = [node_counter]
   node_counter += 1
@@ -430,7 +367,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
       logging.info("Rounds at node {} exceed maximum allowed\n\n".format(
         expand_node))
       continue
-    expand_node_facts = game.node_info[expand_node]
+    expand_node_facts = game.state_fluents[expand_node]
     logging.info("Facts at node being expanded:")
     for f in expand_node_facts:
       logging.info("\t{}".format(f))
@@ -438,7 +375,11 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
     logging.info("")
 
     # Check if the current node is terminal
-    if is_terminal():
+    q = prolog.query("terminal")
+    list_q = list(q)
+    q.close()
+    is_terminal = bool(len(list_q))
+    if is_terminal:
       logging.info("Termination conditions met at node {}\n\n"\
                    .format(expand_node))
       for f in expand_node_facts:
