@@ -1,3 +1,1 @@
-agent(i).
-agent(j).
-agent(k).
+agent(i). agent(j). agent(k).

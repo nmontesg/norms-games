@@ -804,7 +804,7 @@ def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
     terminal_nodes = game.game_tree.terminal_nodes
     for n in terminal_nodes:
       utility_label_player = (pos[n][0], pos[n][1]-utility_label_shift)
-      utilities_node = ["{:.1f}".format(game.utility[n][p]) \
+      utilities_node = ["{:.0f}".format(game.utility[n][p]) \
                         for p in game.players if p!='chance']
       utility_label = '{}'.format('\n'.join(utilities_node))
       plt.text(*utility_label_player, utility_label, **utility_label_kwargs)
