@@ -11,6 +11,7 @@ instances ``prisoners_dilemma'' and ``rock_paper_scissors'' as examples.
 import numpy as np
 import pandas as pd
 from itertools import product
+from scipy.optimize import Bounds, LinearConstraint
 from typing import List, Any, Dict, Tuple, Set
 
 
@@ -115,6 +116,27 @@ class NormalFormGame:
     # store additional keyword arguments
     for k, v in kwargs.items():
       setattr(self, k, v)
+      
+  def __str__(self) -> str:
+    r"""For printing the game to console, only for two-player games.
+    
+    Returns
+    -------
+    str
+      String representation of the game matrix.
+
+    """
+    if self.num_players != 2:
+      return "Normal Form Game"
+    actions1 = self.action_to_index[0].keys()
+    actions2 = self.action_to_index[1].keys()
+    numpy_matrix = np.empty(shape=(len(actions1), len(actions2)))*np.nan
+    matrix = pd.DataFrame(numpy_matrix, index=actions1, columns=actions2,
+                          dtype=object)
+    for a1, a2 in product(actions1, actions2):
+      outcome = self.pure_strategies_rewards(a1, a2)
+      matrix.at[a1, a2] = outcome
+    return matrix.to_string(justify='center') + "\n"
         
   def actions_to_indices(self, *args) -> Tuple[int, ...]:
     r"""Map a list of joint actions to a list of integers.
@@ -377,27 +399,118 @@ class NormalFormGame:
         incentive = self.switch_incentive(p, a, mixed_strategy)
         f += incentive**2
     return f
+  
+  def completely_random_strat_vector(self) -> List[float]:
+    r"""Compute the vector of completely random strategies.
     
-  def __str__(self) -> str:
-    r"""For printing the game to console, only for two-player games.
-    
+    Build the list that correponds to the vector of completely random
+    strategies. To be used as the initial guess in an optimization procedure.
+
     Returns
     -------
-    str
-      String representation of the game matrix.
+    List[float]
+      The vector of completely random strategies.
 
     """
-    if self.num_players != 2:
-      return "Normal Form Game"
-    actions1 = self.action_to_index[0].keys()
-    actions2 = self.action_to_index[1].keys()
-    numpy_matrix = np.empty(shape=(len(actions1), len(actions2)))*np.nan
-    matrix = pd.DataFrame(numpy_matrix, index=actions1, columns=actions2,
-                          dtype=object)
-    for a1, a2 in product(actions1, actions2):
-      outcome = self.pure_strategies_rewards(a1, a2)
-      matrix.at[a1, a2] = outcome
-    return matrix.to_string(justify='center') + "\n"
+    initial_guess = []
+    for i in range(self.num_players):
+      num_player_actions = len(self.player_actions[i])
+      player_random_strat = [1/num_player_actions] * num_player_actions
+      initial_guess += player_random_strat
+    return initial_guess
+  
+  def strategies_vec2dic(self, vector: List[float]) \
+    -> Dict[Any, Dict[Any, float]]:
+    r"""Turn a vector representing a strategy into dictionary format.
+    
+    Includes checks that the input vector has the correct size, and that the
+    mixed strategies encoded in the vector are proper probability 
+    distributions.
+
+    Parameters
+    ----------
+    vector : List[float]
+      A joint strategy encoded as a vector.
+
+    Returns
+    -------
+    Dict[Any, Dict[Any, float]]
+      The dictionary format of the input strategy vector.
+
+    """
+    # check that the vector has the right length
+    actions_per_player = [len(self.player_actions[i]) for i in
+                          range(self.num_players)]
+    total_num_actions = sum(actions_per_player)
+    assert len(vector) == total_num_actions, "strategies vector has length \
+      {}, {} required".format(len(vector), total_num_actions)
+    
+    strategies = {}
+    for i in range(self.num_players):
+      if i == 0:
+        first_index = 0
+      else:
+        first_index = sum(actions_per_player[:i])
+      last_index = first_index + actions_per_player[i]
+      player_strat_vec = vector[first_index:last_index]
+      player_strat_dic = {a:x for a,x in zip(self.player_actions[i],
+                                             player_strat_vec)}
+      self.__check_valid_mixed_strategy(player_strat_dic)
+      strategies[self.players[i]] = player_strat_dic
+    return strategies
+  
+  def make_strat_bounds(self) -> Bounds:
+    r"""Build the bounds [0,1] for a joint strategy profile vector.
+    
+    In any vector encoding a joint strategy, all components must be between 0
+    and 1.
+
+    Returns
+    -------
+    scipy.optimize.Bounds
+
+    """
+    actions_per_player = [len(self.player_actions[i]) for i in
+                          range(self.num_players)]
+    total_num_actions = sum(actions_per_player)
+    low_bounds = [0 for _ in range(total_num_actions)]
+    high_bounds = [1 for _ in range(total_num_actions)]
+    return Bounds(low_bounds, high_bounds)
+      
+  def make_linear_constraints(self) -> LinearConstraint:
+    r"""Build the linear constraints for a joint strategies vector.
+    
+    In a vector that encodes a joint strategy profile, the components that
+    make up the mixed srtategies of any individual must add up to one. This
+    method encodes this requirement.
+
+    Returns
+    -------
+    scipy.optimize.LinearConstraint
+
+    """
+    actions_per_player = [len(self.player_actions[i]) for i in
+                          range(self.num_players)]
+    total_num_actions = sum(actions_per_player)
+    player_indices = []
+    matrix = []
+    for i in range(self.num_players):
+      if i == 0:
+        first_index = 0
+      else:
+        first_index = sum(actions_per_player[:i])
+      last_index = first_index + actions_per_player[i]
+      player_indices.append((first_index, last_index))
+      row = [0]*first_index + [1]*actions_per_player[i] + \
+        [0]*(total_num_actions-last_index)
+      matrix.append(row)
+    eq_constraints = {'type': 'eq',
+                      'fun': lambda x: np.array([sum(x[f:l]) - 1
+                                                 for f, l in player_indices]),
+                      'jac': lambda x: matrix}
+    return eq_constraints
+    
+
      
       
 R, T, S, P = 6., 9., 0., 3.
