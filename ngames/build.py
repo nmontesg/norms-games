@@ -19,7 +19,7 @@ prolog = Prolog()
 
 def build_game_round(identifier: str, threshold: int,
                      root_state_facts: List[str], expand_node: int,
-                     node_counter: int) \
+                     node_counter: int, player_order: List[str]) \
   -> Tuple[ExtensiveFormGame, Dict[int, bool], int]:
   r"""Build a round of the game (i.e. all possible state transitions).
   
@@ -41,6 +41,9 @@ def build_game_round(identifier: str, threshold: int,
   node_counter : int
     To ensure that node numbering in the game round does not clash with that
     of the general game.
+  player_order : List[str]
+    An order of the players to always add player's informations sets in the
+    same order.
 
   Returns
   -------
@@ -79,7 +82,12 @@ def build_game_round(identifier: str, threshold: int,
   # build the game tree skeleton in a breadth-first manner
   w = {game_round.game_tree.root}
   w_prime = set()
-  for player, player_actions in actions.items():
+  for player in player_order:
+  # for player, player_actions in actions.items():
+    try:
+      player_actions = actions[player]
+    except KeyError:
+      continue
     for x in w:
       game_round.set_node_player(x, player)
       for a in player_actions:
@@ -200,6 +208,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
   for p in phi:
     game.add_players(p.args[0].value)
     prolog.assertz(p.value)
+  players = game.players
   
   # STEP 2: Assign the participants to roles
   q = prolog.query("get_simple_consequences({},position,{},L)".format(
@@ -254,7 +263,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
       continue
     
     game_round, tau, node_counter_updated = build_game_round(identifier,
-      threshold, expand_node_facts, expand_node, node_counter-1)
+      threshold, expand_node_facts, expand_node, node_counter-1, players)
     node_counter = node_counter_updated
     
     for f in expand_node_facts:
