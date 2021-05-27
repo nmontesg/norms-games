@@ -689,7 +689,8 @@ def hierarchy_pos(G: Any, root: Any=None, width: float=1.,
     return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
     
 
-def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
+def plot_game(game: ExtensiveFormGame,
+              player_colors: Dict[Any, str],
               utility_label_shift: float=0.03,
               fig_kwargs: Dict[str, Any]=None,
               node_kwargs: Dict[str, Any]=None,
@@ -698,6 +699,7 @@ def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
               patch_kwargs: Dict[str, Any]=None,
               legend_kwargs: Dict[str, Any]=None,
               draw_utility: bool=True,
+              decimals: int=1,
               utility_label_kwargs: Dict[str, Any]=None,
               info_sets_kwargs: Dict[str, Any]=None) -> plt.Figure:
   r"""Make a figure of the game tree.
@@ -737,9 +739,11 @@ def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
   legend_kwargs : Dict[str, Any], optional
     Additional keyword arguments related to the rendering of the legend - they 
     are passed to `matplotlib.axes.Axes.legend`. The default is None.
-  draw_utility : bool, optioanl
+  draw_utility : bool, optional
     Whether labels should be drawn below the terminal nodes displaying the 
     utilities for all players. The default is True.
+  decimals : int, optional
+    The number of decimals places for the utility labels. The default is 1.
   utility_label_kwargs : Dict[str, Any], optional
     Additional keyword arguments related to the rendering of the utility 
     labels at the terminal nodes - they are passed to 
@@ -757,6 +761,7 @@ def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
   pos = hierarchy_pos(game.game_tree, game.game_tree.root)
   fig, ax = plt.subplots(**fig_kwargs)
   fig.patch.set_visible(False)
+  ax.axis('off')
   
   # if there is chance in the game and it does not have a color, set it to
   # white
@@ -804,10 +809,11 @@ def plot_game(game: ExtensiveFormGame, player_colors: Dict[Any, str],
     terminal_nodes = game.game_tree.terminal_nodes
     for n in terminal_nodes:
       utility_label_player = (pos[n][0], pos[n][1]-utility_label_shift)
-      utilities_node = ["{:.0f}".format(game.utility[n][p]) \
-                        for p in game.players if p!='chance']
+      utilities_node = ["{:.{prec}f}".format(game.utility[n][p],
+                        prec=decimals) for p in game.players if p!='chance']
       utility_label = '{}'.format('\n'.join(utilities_node))
-      plt.text(*utility_label_player, utility_label, **utility_label_kwargs)
+      plt.text(*utility_label_player, utility_label, ha='center', va='bottom',
+               **utility_label_kwargs)
     
   # draw archs between nodes in the same information set
   for player in game.players:

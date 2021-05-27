@@ -1,5 +1,3 @@
-:- use_module(library(clpr)).
-
 /*** Default situation rules***/
 
 % boundary

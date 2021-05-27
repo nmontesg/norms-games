@@ -8,6 +8,8 @@
  @author: Nieves Montes
  */
 
+:- use_module(library(clpr)).
+
 /*** Reserved predicates for agents, participants and roles ***/
 
 :- dynamic agent/1, role/2, participates/1, can/2, does/2.
@@ -50,7 +52,8 @@ query(A and B) :-
  query(B).
 
 % query_rule/1
-% query_rule(?Rule): True if Rule is active given the current facts.
+% query_rule(?Rule): True if Rule is active given the current state of the
+%   system.
 query_rule(rule(ID,Type,Priority,if Condition then Consequence
                                 where Constraints)) :-
   rule(ID,Type,Priority,if Condition then Consequence where Constraints),

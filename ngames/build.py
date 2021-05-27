@@ -83,7 +83,6 @@ def build_game_round(identifier: str, threshold: int,
   w = {game_round.game_tree.root}
   w_prime = set()
   for player in player_order:
-  # for player, player_actions in actions.items():
     try:
       player_actions = actions[player]
     except KeyError:
