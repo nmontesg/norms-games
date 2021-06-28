@@ -187,7 +187,7 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
     The resulting Extensive Form Game corresponding to the action situation.
 
   """
-  script_path = Path(__file__).parent.absolute()
+  script_path = str(Path(__file__).parent.absolute()).replace('\\', '/')
   prolog.consult("{}/interpreter.pl".format(script_path))
   prolog.consult("{}/agents.pl".format(folder))
   prolog.consult("{}/rules.pl".format(folder))
