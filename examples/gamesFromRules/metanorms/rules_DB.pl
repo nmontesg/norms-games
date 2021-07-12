@@ -46,17 +46,16 @@ where [payoff(P1,X1),payoff(P2,X2),{Y1=X1-9},{Y2=X2-2}]).
 
 
 /*** Introduce metamonitor ***/
-rule(metanorms,position,1,
+rule(metanorms,position,n1,
 if participates(A) then role(A,metamonitor) where [A=k]).
 
-rule(metanorms,choice,1,
-if role(P2,metamonitor) then can(P2,sanction(P1)) where [seen(P2,P1)]
-).
+rule(metanorms,choice,n1,
+if role(P2,metamonitor) then can(P2,sanction(P1)) where [seen(P2,P1)]).
 
-rule(metanorms,choice,1,
+rule(metanorms,choice,n1,
 if role(P2,metamonitor) then can(P2,~sanction(P1)) where [seen(P2,P1)]).
 
-rule(metanorms,control,1,
+rule(metanorms,control,n1,
 if does(P1,~sanction(_))
 then [seen(P2,P1) withProb 0.6, ~seen(P2,P1) withProb 0.4]
 where [role(P1,monitor),role(P2,metamonitor)]).

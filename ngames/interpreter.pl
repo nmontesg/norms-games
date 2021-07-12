@@ -57,6 +57,7 @@ query(A and B) :-
 query_rule(rule(ID,Type,Priority,if Condition then Consequence
                                 where Constraints)) :-
   rule(ID,Type,Priority,if Condition then Consequence where Constraints),
+  Priority >= 0,
   maplist(query,[Condition|Constraints]).
 
 % find_consequences/3

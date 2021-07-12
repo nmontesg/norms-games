@@ -6,7 +6,7 @@
 /*** Initial and termination conditions ***/
 initially(payoff(P,0)) :- role(P,prisoner).
 initially(rounds(0)).
-initially(consecutiveDefections(P,0)) :- role(P,prisoner).
+initially(consecutiveDefections(P,0)) :- role(P,prisoner),n1>0.
 
 terminal :- rounds(N),N>=3.
 
@@ -17,3 +17,5 @@ incompatible(rounds(_),L) :- member(rounds(_),L).
 incompatible(payoff(P,_),L) :- member(payoff(P,_),L).
 incompatible(consecutiveDefections(P,_),L) :-
   member(consecutiveDefections(P,_),L).
+
+play_action(A) :- member(A,[cooperate,defect]).
