@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 r"""Implementation of games in extensive form.
 
 The most important class of the module is ``ExtensiveFormGame'', which 

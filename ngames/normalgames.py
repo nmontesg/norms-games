@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 r"""Implementation of  games in normal form.
 
 This module provide the ``NormalFormGame'' class, which implements a normal-

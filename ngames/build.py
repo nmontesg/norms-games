@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 r"""Build a complete Extensive Form Game from an action situation description.
 
 This script includes all the functions to create a complete Extensive Form

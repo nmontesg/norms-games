@@ -8,8 +8,6 @@
  @author: Nieves Montes
  */
 
-:- use_module(library(clpr)).
-
 /*** Reserved predicates for agents, participants and roles ***/
 
 :- dynamic agent/1, role/2, participates/1, can/2, does/2.
