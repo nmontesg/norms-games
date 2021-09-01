@@ -155,7 +155,8 @@ def build_full_game(folder: str, identifier: str,
                       Callable[[ExtensiveFormGame], None] = None,
                     threshold: int = 1000,
                     max_rounds: int = 10,
-                    utility_function_kwargs: Dict[Any,Any] = {}) -> ExtensiveFormGame:
+                    utility_function_kwargs: Dict[Any,Any] = {}) \
+  -> ExtensiveFormGame:
   r"""Build a complete game tree from an action situation Prolog description.
 
   This function takes in a complete Prolog description of an action situation
