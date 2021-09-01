@@ -1,6 +1,6 @@
 r"""Implementation of games in extensive form.
 
-The most important class of the module is ``ExtensiveFormGame'', which 
+The most important class of the module is ``ExtensiveFormGame'', which
 provides support for n-player extensive form games, including chance moves.
 It also provides support for a graphical representation of the game tree and
 implementation for the backward induction algorithm, which is used to compute
@@ -100,21 +100,6 @@ class ExtensiveFormGame:
     # additional info
     for k, v in kwargs.items():
       setattr(self, k, v)
-    
-  def __str__(self) -> str:
-    r"""Print the title of the game, if it has any.
-    
-    If not, just print 'Extensive Form Game'.
-    
-    Returns
-    -------
-    str
-      The output to console when `print()` is called.
-
-    """
-    if 'title' in self.__dict__.keys():
-      return "Extensive form game: {}".format(self.name)
-    return "Extensive form game"
   
   def __check_player_in_game(self, player_id: Any) -> None:
     r"""Check that the given player is actually in the game.

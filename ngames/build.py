@@ -7,18 +7,19 @@ Game from a Prolog description using the syntax of if-then-where rules.
 
 import os
 import networkx as nx
-from pyswip import Prolog
-from pathlib import Path
-from extensivegames import ExtensiveFormGame
 from copy import deepcopy
-from typing import List, Tuple, Dict
+from pathlib import Path
+from typing import List, Tuple, Dict, Callable, Any
+from pyswip import Prolog
+from extensivegames import ExtensiveFormGame
 
 prolog = Prolog()
+
 
 def build_game_round(identifier: str, threshold: int,
                      root_state_facts: List[str], expand_node: int,
                      node_counter: int, player_order: List[str]) \
-  -> Tuple[ExtensiveFormGame, Dict[int, bool], int]:
+        -> Tuple[ExtensiveFormGame, Dict[int, bool], int]:
   r"""Build a round of the game (i.e. all possible state transitions).
 
   Build a round of the game, i.e. a restricted form of an extensive-form
@@ -41,7 +42,7 @@ def build_game_round(identifier: str, threshold: int,
     To ensure that node numbering in the game round does not clash with that
     of the general game.
   player_order : List[str]
-    An order of the players to always add player's informations sets in the
+    An order of the players to always add player's information sets in the
     same order.
 
   Returns
@@ -65,7 +66,7 @@ def build_game_round(identifier: str, threshold: int,
     identifier, threshold))
   q_list = list(q)
   q.close()
-  assert len(q_list) == 1, "Prolog found {} action lists, not 1"\
+  assert len(q_list) == 1, "Prolog found {} action lists, not 1" \
     .format(len(q_list))
   sln = q_list[0]['L']
   actions = {}
@@ -105,7 +106,7 @@ def build_game_round(identifier: str, threshold: int,
                                           game_round.game_tree.root, z)
     for i in range(len(path[:-1])):
       who = game_round.turn_function[path[i]]
-      what = game_round.game_tree.get_edge_data(path[i], path[i+1])
+      what = game_round.game_tree.get_edge_data(path[i], path[i + 1])
       prolog.assertz("does({},{})".format(who, what['action']))
 
     q = prolog.query("terminal")
@@ -117,7 +118,7 @@ def build_game_round(identifier: str, threshold: int,
       identifier, threshold, ','.join(root_state_facts)))
     q_list = list(q)
     q.close()
-    assert len(q_list) == 1, "Prolog found {} next states sets, not 1"\
+    assert len(q_list) == 1, "Prolog found {} next states sets, not 1" \
       .format(len(q_list))
     probs = q_list[0]['P']
     S_t1 = []
@@ -149,8 +150,12 @@ def build_game_round(identifier: str, threshold: int,
   return game_round, tau, node_counter
 
 
-def build_full_game(folder: str, identifier: str, threshold: int=1000,
-                    max_rounds: int=10) -> ExtensiveFormGame:
+def build_full_game(folder: str, identifier: str,
+                    utility_assignment_function: \
+                      Callable[[ExtensiveFormGame], None] = None,
+                    threshold: int = 1000,
+                    max_rounds: int = 10,
+                    utility_function_kwargs: Dict[Any,Any] = {}) -> ExtensiveFormGame:
   r"""Build a complete game tree from an action situation Prolog description.
 
   This function takes in a complete Prolog description of an action situation
@@ -174,12 +179,20 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
   identifier : str
     Identifier for the action situation rules that we want to
     include when building the game.
-  threshold : int
+  utility_assignment_function : Callable[[ExtensiveFormGame, None]], optional
+    Function that takes in the built game and assigns utilities to its
+    terminal nodes. The function must work on the object directly, and not
+    return any value. If not passed, game utilities are not set. Default is
+    None.
+  threshold : int, optional
     if-then-where rules, of any type, whose priority exceeds the threshold
-    are not considered while building the game.
+    are not considered while building the game. Default is 1000.
   max_rounds : int, optional
     The maximum number of rounds to perform during the game tree expansion.
     The default is 10.
+  utility_function_kwargs: Dict[Any,Any], optional
+    Additional arguments to be passed to the utility assignment function,
+    as keywords. The default is the empty dictionary.
 
   Returns
   -------
@@ -194,13 +207,13 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
   prolog.consult("{}/states.pl".format(folder))
 
   game = ExtensiveFormGame(ID=identifier)
-  
+
   # STEP 1: Get the participants and add them to the game
   q = prolog.query("get_simple_consequences({},boundary,{},L)".format(
     identifier, threshold))
   q_list = list(q)
   q.close()
-  assert len(q_list) == 1, "Prolog found {} participant lists, not 1"\
+  assert len(q_list) == 1, "Prolog found {} participant lists, not 1" \
     .format(len(q_list))
   phi = q_list[0]['L']
   for p in phi:
@@ -213,13 +226,13 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
     identifier, threshold))
   q_list = list(q)
   q.close()
-  assert len(q_list) == 1, "Prolog found {} roles lists, not 1"\
+  assert len(q_list) == 1, "Prolog found {} roles lists, not 1" \
     .format(len(q_list))
   rho = q_list[0]['L']
-  game.roles = {p:[] for p in game.players}
+  game.roles = {p: [] for p in game.players}
   for r in rho:
     player = r.args[0].value
-    role= r.args[1].value
+    role = r.args[1].value
     try:
       game.roles[player].append(role)
     except KeyError:
@@ -261,7 +274,11 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
       continue
 
     game_round, tau, node_counter_updated = build_game_round(identifier,
-      threshold, expand_node_facts, expand_node, node_counter-1, players)
+                                                             threshold,
+                                                             expand_node_facts,
+                                                             expand_node,
+                                                             node_counter - 1,
+                                                             players)
     node_counter = node_counter_updated
 
     for f in expand_node_facts:
@@ -269,10 +286,10 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
 
     # append game round to the main game tree
     game.game_tree = nx.algorithms.operators.binary.compose(game.game_tree,
-      game_round.game_tree)
+                                                            game_round.game_tree)
     game.game_tree.root = 1
     game.turn_function.update(game_round.turn_function)
-    game.game_tree.terminal_nodes = [n for n in game.game_tree.nodes \
+    game.game_tree.terminal_nodes = [n for n in game.game_tree.nodes
                                      if n not in game.turn_function.keys()]
 
     # information sets
@@ -297,11 +314,15 @@ def build_full_game(folder: str, identifier: str, threshold: int=1000,
   prolog.retractall("role(_,_)")
   prolog.retractall("participates(_)")
 
+  # assign utilities
+  if utility_assignment_function:
+    utility_assignment_function(game, **utility_function_kwargs)
+
   return game
 
 
 def build_game_from_rule_combination(folder: str, identifier: str,
-                                     rule_combination: Dict[str,int],
+                                     rule_combination: Dict[str, int],
                                      **kwargs) -> ExtensiveFormGame:
   r"""Build a full game from the combination of rules in place.
   
@@ -331,7 +352,7 @@ def build_game_from_rule_combination(folder: str, identifier: str,
     The resulting Extensive Form Game corresponding to the action situation
     with that combination of rules in place.
 
-  """   
+  """
   databases = ['agents', 'states', 'rules']
 
   for db in databases:
@@ -340,15 +361,17 @@ def build_game_from_rule_combination(folder: str, identifier: str,
 
     for line in input_file:
       for p_variable, p_value in rule_combination.items():
-        line = line.replace(p_variable,str(p_value))
+        line = line.replace(p_variable, str(p_value))
       output_file.write(line)
 
     input_file.close()
     output_file.close()
-  
+
   game = build_full_game(folder, identifier, **kwargs)
-  
+
   for db in databases:
-    os.remove(folder + '/' + db+'.pl')
-  
+    os.remove(folder + '/' + db + '.pl')
+
+  global prolog
+  prolog = Prolog()
   return game
