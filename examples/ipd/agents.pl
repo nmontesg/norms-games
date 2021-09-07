@@ -1,2 +1,0 @@
-agent(alice).
-agent(bob).

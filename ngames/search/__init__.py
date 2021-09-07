@@ -1,4 +1,4 @@
-r"""Integration of norms and game theory
+r"""Integration of norms and game theory -- Search module
 
 """
 
@@ -11,3 +11,4 @@ __credits__ = ["Nieves Montes"]
 __license__ = "MIT"
 __version__ = "0.0.1"
 __email__ = "nmontes@iiia.csic.es"
+

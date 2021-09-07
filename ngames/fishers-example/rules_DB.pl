@@ -65,10 +65,15 @@ where [\+announced(_,_),fishing_spot(S)]).
 rule(fishers,control,n2,if does(F,announce_spot(S))
 then [announced(F,S) withProb 1] where []).
 
-% when the announcer has gone to the announced spot, has to stay there
-rule(fishers,choice,n2,if role(A,announcer) then ~can(A,leave)
-where [at(A,S),fishing_spot(S),announced(A,S)]).
+% if the fishers both go to the fishing spot declared by the announcer, the
+% announcer is guaranteed to get there first
+rule(fishers,control,n2,if does(F1,go_to_spot(S)) and does(F2,go_to_spot(S))
+then [won_race(F1) withProb 1] where [announced(F1,S),F1\=F2,fishing_spot(S)]).
 
-% if the non-announcer fisher goes to the announced spot, he has to leave
-rule(fishers,choice,n2,if role(F,fisher) then ~can(F,stay)
-where [at(F,S),fishing_spot(S),announced(_,S),\+role(F,announcer)]).
+% the winner of the race must stay <==> cannot leave
+rule(fishers,choice,n2,if role(A,fisher) then ~can(A,leave)
+where [at(A,S),won_race(A),fishing_spot(S)]).
+
+% the looser of the race has to leave <==> cannot stay
+rule(fishers,choice,n2,if role(A,fisher) then ~can(A,stay)
+where [at(A,S),won_race(B),B\=A,fishing_spot(S)]).

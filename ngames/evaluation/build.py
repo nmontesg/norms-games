@@ -287,7 +287,7 @@ def build_full_game(folder: str, identifier: str,
 
     # append game round to the main game tree
     game.game_tree = nx.algorithms.operators.binary.compose(game.game_tree,
-                                                            game_round.game_tree)
+                                                        game_round.game_tree)
     game.game_tree.root = 1
     game.turn_function.update(game_round.turn_function)
     game.game_tree.terminal_nodes = [n for n in game.game_tree.nodes

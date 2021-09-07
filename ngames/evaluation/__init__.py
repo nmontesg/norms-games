@@ -1,4 +1,4 @@
-r"""Integration of norms and game theory
+r"""Integration of norms and game theory -- Evaluation module
 
 """
 
