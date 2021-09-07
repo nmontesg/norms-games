@@ -12,6 +12,9 @@ initially(negotiation_on) :- n3>0.
 
 terminal :- rounds(N),N>=3.
 
+utility(F,X) :-
+  terminal,payoff(F,X).
+
 % compatible/2
 % compatible(+NewFact, +ListOfFacts): Succeeds if the term NewFact is
 %   compatible with the terms in ListOfFacts.

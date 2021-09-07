@@ -7,6 +7,8 @@
 initially(time(0)).
 initially(payoff(P,0)) :- participates(P).
 
+utility(A,X) :- \+terminal, payoff(A,X).
+
 % compatible/2
 % compatible(+NewFact, +ListOfFacts): Succeds if the term NewFact is compatible
 %   with the terms in ListOfFacts.

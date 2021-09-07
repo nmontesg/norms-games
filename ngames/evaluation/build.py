@@ -270,6 +270,13 @@ def build_full_game(folder: str, identifier: str,
     q.close()
     is_terminal = bool(len(list_q))
     if is_terminal:
+      # get utilities at terminal node, default is 0 for all players
+      q = prolog.query("utility(A,X)")
+      utilities_dict = {p: 0 for p in game.players}
+      for sln in q:
+        utilities_dict[sln['A']] = sln['X']
+      q.close()
+      game.set_utility(expand_node, utilities_dict)
       for f in expand_node_facts:
         prolog.retractall(f)
       continue
@@ -281,6 +288,14 @@ def build_full_game(folder: str, identifier: str,
                                                              node_counter - 1,
                                                              players)
     node_counter = node_counter_updated
+    
+    if len(game_round.game_tree.nodes) == 1:
+      q = prolog.query("utility(A,X)")
+      utilities_dict = {p: 0 for p in game.players}
+      for sln in q:
+        utilities_dict[sln['A']] = sln['X']
+      q.close()
+      game.set_utility(expand_node, utilities_dict)
 
     for f in expand_node_facts:
       prolog.retract(f)

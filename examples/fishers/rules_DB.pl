@@ -20,11 +20,14 @@ where [at(A,S),fishing_spot(S)]).
 rule(fishers,control,0,if does(A,go_to_spot(S)) then [at(A,S) withProb 1]
 where []).
 
-rule(fishers,control,0,if does(A,leave) then [at(A,S2) withProb 1]
-where [at(A,S1),fishing_spot(S1),fishing_spot(S2),S1\=S2]).
+rule(fishers,control,0,if does(A,leave)
+then [at(A,S2) and payoff(A,X2) withProb 1]
+where [at(A,S1),fishing_spot(S1),fishing_spot(S2),S1\=S2,
+payoff(A,X1),{X2=X1-1}]).
 
 rule(fishers,control,0,if does(F1,A) and does(F2,A)
-then [won_fight(F1) withProb P1,won_fight(F2) withProb P2]
+then [won_fight(F1) and lost_fight(F2) withProb P1,
+      won_fight(F2) and lost_fight(F1) withProb P2]
 where [at(F1,S),at(F2,S),F1@<F2,fishing_spot(S),strength(F1,X1),
 strength(F2,X2),{P1=X1/(X1+X2)},{P2=X2/(X1+X2)}]).
 
