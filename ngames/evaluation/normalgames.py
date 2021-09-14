@@ -73,8 +73,8 @@ class NormalFormGame:
 
         # assign actions to players
         if len(actions) != self.num_players:
-            raise ValueError("the number of action options provided must equal the \
-        number of players")
+            raise ValueError("the number of action options provided must \
+                equal the number of players")
         self.player_actions = {}
         for i in range(self.num_players):
             self.player_actions[i] = actions[i]
@@ -103,8 +103,8 @@ class NormalFormGame:
 
         for rewards in payoff_function.values():
             if len(rewards) != self.num_players:
-                raise ValueError("payoff {} should have as many elements as players \
-                         there are in the game".format(rewards))
+                raise ValueError("payoff {} should have as many elements as \
+                    players there are in the game".format(rewards))
         # function
         for joint_actions, rewards in payoff_function.items():
             joint_indexes = self.actions_to_indices(*joint_actions)
@@ -195,7 +195,7 @@ class NormalFormGame:
         return num_outcomes
 
     def all_outcomes(self) -> Set[Tuple[Any, ...]]:
-        r"""Generate all the possible outcomes as the product of player's actions.
+        r"""Generate all the possible outcomes.
 
         Returns
         -------

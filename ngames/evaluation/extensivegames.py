@@ -403,10 +403,10 @@ class ExtensiveFormGame:
         info_sets_union = [x for y in all_sets for x in y]
         for s in additional_info_sets:
             for n in s:
-                assert n in theta_partition, "node {} not in the turn function of \
-          player {}".format(n, player_id)
-                assert n not in info_sets_union, "node {} already in information \
-          partition of player {}".format(n, player_id)
+                assert n in theta_partition, "node {} not in the turn \
+                    function of player {}".format(n, player_id)
+                assert n not in info_sets_union, "node {} already in \
+                    information partition of player {}".format(n, player_id)
 
         for s in additional_info_sets:
             self.information_partition[player_id].append(s)

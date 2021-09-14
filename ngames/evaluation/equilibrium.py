@@ -12,8 +12,8 @@ from networkx.algorithms.shortest_paths.generic import shortest_path
 from itertools import product
 from copy import deepcopy
 from scipy.optimize import minimize
-from extensivegames import ExtensiveFormGame
-from normalgames import NormalFormGame
+from ngames.evaluation.extensivegames import ExtensiveFormGame
+from ngames.evaluation.normalgames import NormalFormGame
 from typing import Callable, Dict, Any, Tuple, List
 
 
@@ -95,15 +95,15 @@ def build_subgame(extensive_game: ExtensiveFormGame, root: int) \
         elif extensive_game.turn_function[n] == 'chance':
             utility_dict = {pl: 0 for pl in players}
             for (_, desc), prob in extensive_game.probability[n].items():
-                assert desc in extensive_game.game_tree.terminal_nodes, "node {} \
-          should be a terminal node".format(desc)
+                assert desc in extensive_game.game_tree.terminal_nodes,\
+                    "node {} should be a terminal node".format(desc)
                 for pl in players:
                     utility_dict[pl] += prob*extensive_game.utility[desc][pl]
             utility = tuple(utility_dict[pl] for pl in players)
 
         else:
-            raise ValueError("node at end of path play {} from root node {} is not \
-                       a terminal nor a chance node".format(p, root))
+            raise ValueError("node at end of path play {} from root node {} \
+                        is not a terminal nor a chance node".format(p, root))
 
         payoff_function[p] = utility
 
