@@ -19,7 +19,7 @@ from typing import Callable, Dict, Any, Tuple, List
 
 def build_subgame(extensive_game: ExtensiveFormGame, root: int) \
         -> NormalFormGame:
-    r"""Build a normal form game that emanates from a node in an extensive game.
+    r"""Build a normal game that emanates from a node in an extensive game.
 
     Assumes that the root from which the normal form game is built corresponds
     to the root of the last round of the extensive game.
@@ -270,9 +270,10 @@ def subgame_perfect_equilibrium(extensive_form_game: ExtensiveFormGame,
 
     while subgame_rounds >= 0:
         subgame_root_nodes = [n for n in extensive_game.node_rounds.keys()
-                              if extensive_game.node_rounds[n] ==
-                              subgame_rounds and
-                              n not in extensive_game.game_tree.terminal_nodes]
+                              if extensive_game.node_rounds[n]
+                              == subgame_rounds
+                              and n not in
+                              extensive_game.game_tree.terminal_nodes]
 
         # compute equilibrium at the subgames closest to the terminal nodes
         for s in subgame_root_nodes:

@@ -9,7 +9,7 @@ import os
 import networkx as nx
 from copy import deepcopy
 from pathlib import Path
-from typing import List, Tuple, Dict, Callable, Any
+from typing import List, Tuple, Dict, Any
 from pyswip import Prolog
 from ngames.evaluation.extensivegames import ExtensiveFormGame
 
@@ -47,7 +47,7 @@ def build_game_round(identifier: str, threshold: int,
 
     Returns
     -------
-    ExtensiveFormGame
+    ngames.evaluation.ExtensiveFormGame
         The game round.
     Dict[int, bool]
         A dictionary mapping the terminal nodes of the game tree to whether the
@@ -152,8 +152,6 @@ def build_game_round(identifier: str, threshold: int,
 
 
 def build_full_game(folder: str, identifier: str,
-                    utility_assignment_function:
-                    Callable[[ExtensiveFormGame], None] = None,
                     threshold: int = 1000,
                     max_rounds: int = 10,
                     utility_function_kwargs: Dict[Any, Any] = {}) \
@@ -181,24 +179,16 @@ def build_full_game(folder: str, identifier: str,
     identifier : str
       Identifier for the action situation rules that we want to
       include when building the game.
-    utility_assignment_function : Callable[[ExtensiveFormGame, None]], optional
-      Function that takes in the built game and assigns utilities to its
-      terminal nodes. The function must work on the object directly, and not
-      return any value. If not passed, game utilities are not set. Default is
-      None.
     threshold : int, optional
       if-then-where rules, of any type, whose priority exceeds the threshold
       are not considered while building the game. Default is 1000.
     max_rounds : int, optional
       The maximum number of rounds to perform during the game tree expansion.
       The default is 10.
-    utility_function_kwargs: Dict[Any,Any], optional
-      Additional arguments to be passed to the utility assignment function,
-      as keywords. The default is the empty dictionary.
 
     Returns
     -------
-    ExtensiveFormGame
+    ngames.evaluation.ExtensiveFormGame
       The resulting Extensive Form Game corresponding to the action situation.
 
     """
@@ -259,11 +249,41 @@ def build_full_game(folder: str, identifier: str,
     while expand_queue:
         # Get the node to be expanded and assert into the database
         expand_node = expand_queue.pop(0)
-        if game.node_rounds[expand_node] >= max_rounds:
-            continue
         expand_node_facts = game.state_fluents[expand_node]
         for f in expand_node_facts:
             prolog.assertz(f)
+
+        # update payoffs according to payoff rules
+        q = prolog.query("get_simple_consequences({},payoff,{},L)".format(
+            identifier, threshold))
+        q_list = list(q)
+        q.close()
+        assert len(q_list) == 1, "Prolog found {} payoff lists, not 1" \
+            .format(len(q_list))
+        kappa = q_list[0]['L']
+        new_payoffs = {}
+        for payoff_predicate in kappa:
+            player = payoff_predicate.args[0].value
+            quantity = payoff_predicate.args[1]
+            new_payoffs[player] = quantity
+        for i, f in enumerate(game.state_fluents[expand_node]):
+            name_plus_args = f.split('(')
+            name = name_plus_args[0]
+            if name == "payoff":
+                args = name_plus_args[1][:-1].split(',')
+                player = args[0]
+                if player in new_payoffs.keys():
+                    new_predicate = "payoff({},{})". \
+                        format(player, new_payoffs[player])
+                    prolog.retract(game.state_fluents[expand_node][i])
+                    prolog.assertz(new_predicate)
+                    game.state_fluents[expand_node][i] = new_predicate
+
+        # Number of rounds exceeds maximum
+        if game.node_rounds[expand_node] >= max_rounds:
+            for f in expand_node_facts:
+                prolog.retractall(f)
+            continue
 
         # Check if the current node is terminal
         q = prolog.query("terminal")
@@ -271,13 +291,6 @@ def build_full_game(folder: str, identifier: str,
         q.close()
         is_terminal = bool(len(list_q))
         if is_terminal:
-            # get utilities at terminal node, default is 0 for all players
-            q = prolog.query("utility(A,X)")
-            utilities_dict = {p: 0 for p in game.players}
-            for sln in q:
-                utilities_dict[sln['A']] = sln['X']
-            q.close()
-            game.set_utility(expand_node, utilities_dict)
             for f in expand_node_facts:
                 prolog.retractall(f)
             continue
@@ -290,14 +303,6 @@ def build_full_game(folder: str, identifier: str,
                              node_counter - 1,
                              players)
         node_counter = node_counter_updated
-
-        if len(game_round.game_tree.nodes) == 1:
-            q = prolog.query("utility(A,X)")
-            utilities_dict = {p: 0 for p in game.players}
-            for sln in q:
-                utilities_dict[sln['A']] = sln['X']
-            q.close()
-            game.set_utility(expand_node, utilities_dict)
 
         for f in expand_node_facts:
             prolog.retract(f)
@@ -315,7 +320,7 @@ def build_full_game(folder: str, identifier: str,
         for p in game.players:
             try:
                 game.add_information_sets(
-                            p, game_round.information_partition[p][0])
+                    p, game_round.information_partition[p][0])
             except KeyError:
                 pass
 
@@ -334,9 +339,18 @@ def build_full_game(folder: str, identifier: str,
     prolog.retractall("role(_,_)")
     prolog.retractall("participates(_)")
 
-    # assign utilities
-    if utility_assignment_function:
-        utility_assignment_function(game, **utility_function_kwargs)
+    # set utility at terminal nodes
+    for t in game.game_tree.terminal_nodes:
+        game.utility[t] = {}
+        for f in game.state_fluents[t]:
+            name_plus_args = f.split('(')
+            name = name_plus_args[0]
+            if name == "payoff":
+                # [:-1] to remove closing bracket
+                args = name_plus_args[1][:-1].split(',')
+                player = args[0]
+                u = args[1]
+                game.utility[t][player] = float(u)
 
     return game
 
@@ -393,6 +407,8 @@ def build_game_from_rule_combination(folder: str, identifier: str,
     for db in databases:
         os.remove(folder + '/' + db + '.pl')
 
-    global prolog
-    prolog = Prolog()
     return game
+
+
+if __name__ == '__main__':
+    pass

@@ -444,8 +444,8 @@ class NormalFormGame:
         actions_per_player = [len(self.player_actions[i]) for i in
                               range(self.num_players)]
         total_num_actions = sum(actions_per_player)
-        assert len(vector) == total_num_actions, "strategies vector has length \
-      {}, {} required".format(len(vector), total_num_actions)
+        assert len(vector) == total_num_actions, "strategies vector has \
+            length {}, {} required".format(len(vector), total_num_actions)
 
         strategies = {}
         for i in range(self.num_players):

@@ -2,7 +2,10 @@
 fishing_spot(spot1).
 fishing_spot(spot2).
 
-:- dynamic at/2, won_fight/1, lost_fight/1, won_race/1, announced/2, payoff/2.
+productivity(spot1,10).
+productivity(spot2,5).
+
+:- dynamic at/2, won_fight/1, lost_fight/1, won_race/1, announced/2.
 
 initially(at(F,shore)) :- role(F,fisher).
 initially(payoff(F,0)) :- role(F,fisher).
@@ -12,24 +15,6 @@ terminal :-
   fishing_spot(S1),fishing_spot(S2),
   F1\=F2,S1\=S2.
 terminal :- won_fight(_).
-
-% material utilities at terminal outcomes
-utility(F,X) :-
-  terminal,
-  payoff(F,Y),{X=Y+10},at(F,spot1),
-  (findall(A,at(A,spot1),[F]);
-  won_fight(F)).
-
-utility(F,X) :-
-  terminal,
-  payoff(F,Y),{X=Y+5},at(F,spot2),
-  (findall(A,at(A,spot2),[F]);
-  won_fight(F)).
-
-utility(F,X) :-
-  terminal,
-  payoff(F,Y),{X=Y-3},lost_fight(F).
-
 
 incompatible(at(F,_),L) :- member(at(F,_),L).
 incompatible(won_fight(_),L) :- member(won_fight(_),L).

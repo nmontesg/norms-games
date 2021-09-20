@@ -514,8 +514,8 @@ class ExtensiveFormGame:
             if e not in prob_dist.keys():
                 raise ValueError("probability not specified for edge {}".
                                  format(e))
-        assert np.isclose([sum(prob_dist.values())], [1], atol=1.E-3)[0], "sum \
-      over probability distribution of edges must be close to 1"
+        assert np.isclose([sum(prob_dist.values())], [1], atol=1.E-3)[0], \
+            "sum over probability distribution of edges must be close to 1"
         self.probability[node_id] = prob_dist
 
     def set_uniform_probability_distribution(self, node_id: Any) -> None:
@@ -809,8 +809,9 @@ def plot_game(game: ExtensiveFormGame,
         terminal_nodes = game.game_tree.terminal_nodes
         for n in terminal_nodes:
             utility_label_player = (pos[n][0], pos[n][1]-utility_label_shift)
-            utilities_node = ["{:.{prec}f}".format(game.utility[n][p],
-                              prec=decimals) for p in game.players
+            utilities_node = ["{:.{prec}f}".
+                              format(game.utility[n][p],
+                                     prec=decimals) for p in game.players
                               if p != 'chance']
             utility_label = '{}'.format('\n'.join(utilities_node))
             plt.text(*utility_label_player, utility_label, ha='center',
