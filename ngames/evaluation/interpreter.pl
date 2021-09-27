@@ -39,11 +39,9 @@ into a Python-friendly format (mostly as lists).
 :- op(350, yfx, withProb).
 :- discontiguous (withProb)/2.
 
-/** GENERAL-PURPOSE PREDICATES
-
-To query all rules and in particular to process the consequences of ``simple''
-rules (boundary, position, choice and payoff).
-*/
+% GENERAL-PURPOSE PREDICATES
+% To query all rules and in particular to process the consequences of ``simple''
+% rules (boundary, position, choice and payoff).
 
 %! query(?Term:term) is det
 %
@@ -58,7 +56,7 @@ query(A and B) :-
     query(A),
     query(B).
 
-%! query_rule(?Rule:term) is det
+%! query_rule(?Rule:term) is det.
 %
 % Return True if Rule is active given the current state of the system.
 %
@@ -150,11 +148,9 @@ get_simple_consequences(ID,Type,Threshold,L) :-
 
 %%-----------------------------------------------------------------------------
 
-/** PROCESSING CONTROL RULES
-
-Predicates to find whether a triggered control rule is compatible
-with the potential next states already established.
-*/
+% PROCESSING CONTROL RULES
+% Predicates to find whether a triggered control rule is compatible
+% with the potential next states already established.
 
 %! control_conseq_fact_incompatible(+Fact:atom,+S:list) is det
 %
@@ -198,12 +194,10 @@ control_rule_incompatible([C withProb _|T],S) :-
     control_rule_incompatible(T,S).
 
 
-% predicates to add the consequences of a single rule into the set of
-% potential next states
+% Predicates to add the consequences of a single rule into the set of
+% potential next states.
 
-%! add_rule_conseqs_to_next_states(+Conseqs:list,+S:list,+P:list,
-%                                  +OldNextS:list,+OldNextP:list,
-%                                  -NewNextS:list,-NewNextP:list) is det
+%! add_rule_conseqs_to_next_states(+Conseqs:list,+S:list,+P:list,+OldNextS:list,+OldNextP:list,-NewNextS:list,-NewNextP:list) is det
 %
 % Given the potential next states derived in 'S` and their probabilities
 % in 'P`, add the consequences in 'Conseqs` of an active control rule.
@@ -231,8 +225,7 @@ add_rule_conseqs_to_next_states([C withProb X|T],S,P,OldNextStates,OldNextP,
     add_rule_conseqs_to_next_states(T,S,P,IntNextStates,IntNextP,NewNextStates,
     NewNextP).
 
-%! add_joint_conseqs_to_next_states(+F:term,+OldNextStates:list,+OldProb:list,
-%                                   -NewNextStates:list,-NewProb:list) is det
+%! add_joint_conseqs_to_next_states(+F:term,+OldNextStates:list,+OldProb:list,-NewNextStates:list,-NewProb:list) is det
 %
 % Given a fact (or conjunction of facts) alonside with their probability
 % ('C withProb P`), derived from an activated control rule, update the list of
@@ -251,8 +244,7 @@ add_joint_conseqs_to_next_states(C withProb X,[OldS1|OldS2],[OldP1|OldP2],
     add_joint_conseqs_to_single_state(C withProb X,OldS1,OldP1,NewS1,NewP1),
     add_joint_conseqs_to_next_states(C withProb X,OldS2,OldP2,NewS2,NewP2).
 
-%! add_joint_conseqs_to_single_state(+F:term,+State:list,+Prob:float,
-%                                    -NewState:list,-NewProb:float) is det
+%! add_joint_conseqs_to_single_state(+F:term,+State:list,+Prob:float,-NewState:list,-NewProb:float) is det
 %
 % Takes one consequence fact 'F` (expressed as 'C withProb P`)
 % from an activated control rule, a state 'S` to be updated (as a list of
@@ -286,8 +278,7 @@ joint_conseqs_to_list(Old,C1,[C1|Old]).
 % Predicates to drag the compatible facts from the pre-transition state
 % to the potential next states.
 
-%! drag_compatible_fact(+PreTranFact:atom,+PostTranState:list,
-%                       -UpdatedPostTransState:list) is det
+%! drag_compatible_fact(+PreTranFact:atom,+PostTranState:list,-UpdatedPostTransState:list) is det
 %
 % If compatible, update a provisional next state with a fluent from the pre-
 % transition state.
@@ -299,8 +290,7 @@ drag_compatible_fact(PreTranFact,NewState,NewState) :-
     incompatible(PreTranFact,NewState),!.
 drag_compatible_fact(PreTranFact,NewState,[PreTranFact|NewState]).
 
-%! drag_compatible_fact(+PreTranFact:list,+PostTranState:list,
-%                      -UpdatedPostTransState:list) is det
+%! drag_compatible_fact(+PreTranFact:list,+PostTranState:list,-UpdatedPostTransState:list) is det
 %
 % Update a partially constructed post-transition state 'PostTranState` with
 % the compatible facts from pre-transition state 'PreTranFact'
@@ -314,8 +304,7 @@ drag_compatible_state([F|T],NewState,UpdatedNewState) :-
     drag_compatible_fact(F,NewState,Int),
     drag_compatible_state(T,Int,UpdatedNewState).
 
-%! update_all_new_states(+PreTranState:list,+PostTranStates:list,
-%                        -UpdatedPostTransStates:list) is det
+%! update_all_new_states(+PreTranState:list,+PostTranStates:list,-UpdatedPostTransStates:list) is det
 %
 % Update all the potential next states sin 'PostTranStates` with the compatible
 % facts in 'PreTranState`.
@@ -329,10 +318,9 @@ update_all_new_states(PreTranState,[S1|S2],[NewS1|NewS2]) :-
     drag_compatible_state(PreTranState,S1,NewS1),
     update_all_new_states(PreTranState,S2,NewS2).
 
-% Predicates to find the next state based on the actions performed
+% Predicates to find the next state based on the actions performed.
 
-%! add_control_rules(+RuleConseqs:list,+OldNextS:list,+OldNextP:list,
-%                    -NewNextS:list,-NewNextP:list) is det
+%! add_control_rules(+RuleConseqs:list,+OldNextS:list,+OldNextP:list,-NewNextS:list,-NewNextP:list) is det
 %
 % Given the priority-consequences pairs of the activated control rules in
 % 'RuleConseqs`, append them to the provisional states in 'OldNextS`
@@ -356,8 +344,7 @@ add_control_rules([_-Conseqs|T],OldNextS,OldNextP,NewNextS,NewNextP) :-
                                         IntNextS,IntNextP),
         add_control_rules(T,IntNextS,IntNextP,NewNextS,NewNextP)).
 
-%! get_control_consequences(+ID:str,+Threshold:int,+PreTranState:list,
-%                           -PostTranState:list,-Probs:list) is det
+%! get_control_consequences(+ID:str,+Threshold:int,+PreTranState:list,-PostTranState:list,-Probs:list) is det
 %
 % Gather the consequences of control rules given the current state for the
 % action situation of interest. The rules whose priority exceeds 'Threshold`
