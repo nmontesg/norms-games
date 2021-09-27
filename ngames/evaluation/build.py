@@ -9,7 +9,7 @@ import os
 import networkx as nx
 from copy import deepcopy
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict
 from pyswip import Prolog
 from ngames.evaluation.extensivegames import ExtensiveFormGame
 
@@ -153,8 +153,7 @@ def build_game_round(identifier: str, threshold: int,
 
 def build_full_game(folder: str, identifier: str,
                     threshold: int = 1000,
-                    max_rounds: int = 10,
-                    utility_function_kwargs: Dict[Any, Any] = {}) \
+                    max_rounds: int = 10) \
         -> ExtensiveFormGame:
     r"""Build a complete game tree from an action situation Prolog description.
 
@@ -391,7 +390,7 @@ def build_game_from_rule_combination(folder: str, identifier: str,
     databases = ['agents', 'states', 'rules']
 
     for db in databases:
-        input_file = open(folder + '/' + db + '_DB.pl', 'rt')
+        input_file = open(folder + '/' + db + 'DB.pl', 'rt')
         output_file = open(folder + '/' + db + '.pl', 'wt')
 
         for line in input_file:

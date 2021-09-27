@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+\usepackage{times}
+\usepackage{pldoc}
+\sloppy
+\makeindex
+
+\begin{document}
+% This LaTeX document was generated using the LaTeX backend of PlDoc,
+% The SWI-Prolog documentation system
+
+
+
+\section{ngames/evaluation/interpreter.pl}
+
+\label{sec:interpreter}
+
+\begin{description}
+    \predicate[det]{query}{1}{?Term:term}
+Substitute for the usual \predref{call}{1} predicate, but includes support for
+terms expressed as conjunctions (e.g. A and B).
+
+\begin{arguments}
+\arg{Term} & A Prolog term to be queried. \\
+\end{arguments}
+
+    \predicate[det]{query_rule}{1}{?Rule:term}
+Return True if \arg{Rule} is active given the current state of the system.
+
+\begin{arguments}
+\arg{Rule} & A '\predref{rule}{4}` predicate. \\
+\end{arguments}
+
+    \predicate[det]{find_consequences}{4}{+ID:atom, +Type:atom, +Threshold:int, -L:list}
+Find the instantitations of the if-then-where rules of the '\arg{Type}` kind
+that are currently active, and extract their consequences paired with their
+priority. Active rules with priority larger than '\arg{Threshold}` are excluded.
+
+\begin{arguments}
+\arg{ID} & Identifier for the action situation. \\
+\arg{Type} & One of either 'boundary`, 'position`, 'choice`, 'control` or
+'payoff`. \\
+\arg{Threshold} & The maximum priority of rules to be considered. \\
+\arg{L} & The output list with the processed consequences. \\
+\end{arguments}
+
+    \predicate[det]{delete_key_gt}{3}{L:list, N:int, NewL:list}
+Auxiliary predicate to delete consequences whose priority is over some
+given threshold.
+
+\begin{arguments}
+\arg{L} & List with priority-fluents pairs to be processed. \\
+\arg{N} & Threshold, fluents with priority over it are to be excluded. \\
+\arg{NewL} & List identical to '\arg{L}`, but fluents with priority over Threshold
+are excluded. \\
+\end{arguments}
+
+    \predicate[det]{process_consequences}{3}{+Conseqs:list, +OldParts:list, ?NewParts:list}
+Get all the consequences of some rule type and process them in decreasing
+order of priority. It returns a new list indicating the consequences that
+hold, negated ones (aka overwritten) included. The list of consequences
+is processed in a way such that consequences that are in conflict with
+consequences of higher priority are discarded.
+
+It should be called as:
+
+\Sdirective{} \verb$find_consequences(boundary,L)$,\verb$process_consequences(L,[],P)$.
+
+\begin{arguments}
+\arg{Conseqs} & List of consequence of some rule type. \\
+\arg{OldParts} & List of old consequences. Intended to be called with the
+empty list. \\
+\arg{NewParts} & List of the consequences that hold, negations included. \\
+\end{arguments}
+
+    \predicate[det]{get_simple_consequences}{4}{+ID:str, +Type:str, +Threshold:int, -L:list}
+Process the consequences of boundary, position, choice and payoff rules.
+It gets the consequences of the rules with the given identification and
+type, has rules of higher priority overwrite rules of lower priority, and
+finally deletes negated (aka overwritten) facts. It returns the result in
+a list of fluents.
+
+\begin{arguments}
+\arg{ID} & Identifier of the action situation. \\
+\arg{Type} & One of either 'boundary`, 'position`, 'choice` or 'payoff`. \\
+\arg{Threshold} & Consequences of rules with priorities exceeding `\arg{Threshold}'
+are excluded. \\
+\end{arguments}
+
+    \predicate[det]{control_conseq_fact_incompatible}{2}{+Fact:atom, +S:list}
+Check whether a single fact is compatible with a list of established facts.
+
+\begin{arguments}
+\arg{Fact} & The fluent whose compatibility we want to check. \\
+\arg{S} & List of previously established facts. \\
+\end{arguments}
+
+    \predicate[det]{control_conseq_incompatible}{2}{+Facts:atom, +S:list}
+Checks whether the fluents in '\arg{Facts}` that make up a joint consequence
+statement of an active control rule are incompatible with the next states
+already derived in '\arg{S}`.
+
+\begin{arguments}
+\arg{Facts} & \arg{Facts} derived from a new control rule. Either a single fact
+or a conjunction of them (aka 'A and B`). \\
+\arg{S} & List of potential next state descriptions already derived
+(aka a list of lists). \\
+\end{arguments}
+
+    \predicate[det]{control_rule_incompatible}{2}{+Conseqs:list, +S:list}
+Check whether the '\arg{Conseqs}` list of an active control rule is compatible
+with the next states already derived in '\arg{S}`.
+
+\begin{arguments}
+\arg{Conseqs} & List of facts derived from a control rule. Each of them is
+either a single fact or a conjunction (aka 'A and B`). \\
+\arg{S} & List of potential next state descriptions already derived
+(aka a list of lists). \\
+\end{arguments}
+\end{description}
+
+
+\printindex
+\end{document}

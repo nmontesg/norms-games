@@ -5,7 +5,7 @@ fishing_spot(spot2).
 productivity(spot1,10).
 productivity(spot2,5).
 
-:- dynamic at/2, won_fight/1, lost_fight/1, won_race/1, announced/2.
+:- dynamic at/2, won_fight/1, lost_fight/1.
 
 initially(at(F,shore)) :- role(F,fisher).
 initially(payoff(F,0)) :- role(F,fisher).
@@ -18,5 +18,4 @@ terminal :- won_fight(_).
 
 incompatible(at(F,_),L) :- member(at(F,_),L).
 incompatible(won_fight(_),L) :- member(won_fight(_),L).
-incompatible(won_race(_),L) :- member(won_race(_),L).
 incompatible(payoff(F,_),L) :- member(payoff(F,_),L).
