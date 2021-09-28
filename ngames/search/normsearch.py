@@ -5,6 +5,10 @@ from ngames.evaluation.extensivegames import ExtensiveFormGame, plot_game
 from ngames.evaluation.equilibrium import minimize_incentives,\
     subgame_perfect_equilibrium, outcome_probability
 
+# TODO documentation
+# TODO Simulated Annealing search algorithm
+# TODO test search with fishers benchmark
+
 
 def utilitarian_social_welfare(utilities: Sequence[float]) -> float:
     return sum(utilities)
@@ -59,7 +63,7 @@ if __name__ == '__main__':
         norms=["firstInTime", "firstToAnnounce"]
     )
 
-    game = search.build_game({'firstInTime': 1, 'firstToAnnounce': 2})
+    game = search.build_game({'firstToAnnounce': 1})
     sw = search.evaluate_game(game)
     print(sw)
 
