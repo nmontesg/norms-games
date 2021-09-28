@@ -70,17 +70,16 @@ update_action_situation_description(NormRepository,
 %                        values, that correspond to the priorities that their
 %                        rules will be assigned.
 % @param ID Action situation identifier.
-process_norm_stream(InStream,_,_) :-
-    read(InStream,end_of_file),!.
 process_norm_stream(InStream,NormativeSystem,ID) :-
     read(InStream,Term),
-    Term\=end_of_file,
+    Term\=end_of_file,!,
     dict_create(Norm,norm,Term),
     Name=Norm.name,
     (Priority=NormativeSystem.get(Name) ->
         process_norm_dict(Norm,Priority,ID);
     true),
     process_norm_stream(InStream,NormativeSystem,ID).
+process_norm_stream(_,_,_).
 
 %! process_norm_dict(+Norm:dict,+Priority:int,ID:str) is det
 %

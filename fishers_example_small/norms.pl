@@ -1,16 +1,3 @@
-% norm{
-%     name: ...,
-%     predicates: [],
-%     incompatibles: [],
-%     initially: [],
-%     rules: rules{
-%         boundary: [],
-%         position: [],
-%         choice: [],
-%         control: []
-%     }
-% }.
-
 [
     name: firstInTime,
     predicates: [won_race/1],
@@ -39,7 +26,7 @@
     rules: [
         boundary: [],
         position: [
-            if participates(A) then role(A,announcer) where [findall(X,participates(X),L),random_member(A,L)]
+            if participates(alice) then role(alice,announcer) where [findall(X,participates(X),L),random_member(A,L)]
         ],
         choice: [
             if role(A,announcer) then can(A,announce_spot(S)) where [at(A,shore),at(B,shore),A\=B,fishing_spot(S)],
