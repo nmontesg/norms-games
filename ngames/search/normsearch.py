@@ -22,6 +22,8 @@ class NormSearch:
         self.path_to_norm_repo = norm_repository
         self.evaluation_function = welfare_function
         self.id = id
+        self.norms_in_repo = norms
+        self.N = len(norms)
 
     def build_game(self, normative_system: Dict[str, int]) \
             -> ExtensiveFormGame:

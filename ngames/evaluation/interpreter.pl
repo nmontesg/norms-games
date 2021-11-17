@@ -14,9 +14,8 @@ into a Python-friendly format (mostly as lists).
 :- use_module(library(clpr)).
 
 % predicates for agents, participants, roles, actions and payoffs
-:- dynamic agent/1, role/2, participates/1, can/2, does/2, payoff/2.
-:- discontiguous (agent)/1, (role)/2, (participates)/1, (can)/2, (does)/2,
-    (payoff)/2.
+:- dynamic agent/1, role/2, participates/1, can/2, does/2.
+:- discontiguous (agent)/1, (role)/2, (participates)/1, (can)/2, (does)/2.
 
 % predicates for initial conditions and compatibility
 :- dynamic initially/1, terminal/0, incompatible/2.
@@ -63,7 +62,7 @@ query(A and B) :-
 % @param Rule A 'rule/4` predicate.
 query_rule(rule(ID,Type,Priority,if Condition then Consequence
         where Constraints)) :-
-    rule(ID,Type,Priority,if Condition then Consequence where Constraints),
+    rule(ID,Type,Priority,if Condition then Consequence where Constraints),!,
     Priority >= 0,
     maplist(query,[Condition|Constraints]).
 
@@ -84,6 +83,7 @@ find_consequences(ID,Type,Threshold,L) :-
     delete_key_gt(L1,Threshold,L2),
     keysort(L2,L3),
     reverse(L3,L).
+
 
 %! delete_key_gt(L:list,N:int,NewL:list) is det
 %

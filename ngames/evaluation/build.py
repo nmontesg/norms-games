@@ -104,10 +104,12 @@ def build_game_round(identifier: str, threshold: int,
     for z in initial_terminal_nodes:
         path = nx.bidirectional_shortest_path(game_round.game_tree,
                                               game_round.game_tree.root, z)
+        action_profile = []
         for i in range(len(path[:-1])):
             who = game_round.turn_function[path[i]]
             what = game_round.game_tree.get_edge_data(path[i], path[i + 1])
             prolog.assertz("does({},{})".format(who, what['action']))
+            action_profile.append("does({},{})".format(who, what['action']))
 
         q = prolog.query("terminal")
         list_q = list(q)
@@ -164,31 +166,32 @@ def build_full_game(folder: str, identifier: str,
 
     Additional attributes of the game not included in the original
     implementation are added to the returned game:
-      - roles: a dictionary mapping the participants to the list of roles they
-      assume.
-      - node_rounds: a dictionary mapping every ``non-intermediate'' node
-      to the number of rounds performed to get there.
-      - state_fluents: a dictionary mapping every ``non-intermediate'' node to
-      the predicates that hold true in that node.
+        - roles: a dictionary mapping the participants to the list of roles
+        they assume.
+        - node_rounds: a dictionary mapping every ``non-intermediate'' node
+        to the number of rounds performed to get there.
+        - state_fluents: a dictionary mapping every ``non-intermediate'' node
+        to the predicates that hold true in that node.
 
     Parameters
     ----------
     folder : str
-      Folder where the agents.pl, states.pl and rules.pl files are placed.
+        Folder where the agents.pl, states.pl and rules.pl files are placed.
     identifier : str
-      Identifier for the action situation rules that we want to
-      include when building the game.
+        Identifier for the action situation rules that we want to
+        include when building the game.
     threshold : int, optional
-      if-then-where rules, of any type, whose priority exceeds the threshold
-      are not considered while building the game. Default is 1000.
+        if-then-where rules, of any type, whose priority exceeds the threshold
+        are not considered while building the game. Default is 1000.
     max_rounds : int, optional
-      The maximum number of rounds to perform during the game tree expansion.
-      The default is 10.
+        The maximum number of rounds to perform during the game tree expansion.
+        The default is 10.
 
     Returns
     -------
     ngames.evaluation.ExtensiveFormGame
-      The resulting Extensive Form Game corresponding to the action situation.
+        The resulting Extensive Form Game corresponding to the action
+        situation.
 
     """
     script_path = str(Path(__file__).parent.absolute()).replace('\\', '/')
@@ -252,32 +255,6 @@ def build_full_game(folder: str, identifier: str,
         for f in expand_node_facts:
             prolog.assertz(f)
 
-        # update payoffs according to payoff rules
-        q = prolog.query("get_simple_consequences({},payoff,{},L)".format(
-            identifier, threshold))
-        q_list = list(q)
-        q.close()
-        assert len(q_list) == 1, "Prolog found {} payoff lists, not 1" \
-            .format(len(q_list))
-        kappa = q_list[0]['L']
-        new_payoffs = {}
-        for payoff_predicate in kappa:
-            player = payoff_predicate.args[0].value
-            quantity = payoff_predicate.args[1]
-            new_payoffs[player] = quantity
-        for i, f in enumerate(game.state_fluents[expand_node]):
-            name_plus_args = f.split('(')
-            name = name_plus_args[0]
-            if name == "payoff":
-                args = name_plus_args[1][:-1].split(',')
-                player = args[0]
-                if player in new_payoffs.keys():
-                    new_predicate = "payoff({},{})". \
-                        format(player, new_payoffs[player])
-                    prolog.retract(game.state_fluents[expand_node][i])
-                    prolog.assertz(new_predicate)
-                    game.state_fluents[expand_node][i] = new_predicate
-
         # Number of rounds exceeds maximum
         if game.node_rounds[expand_node] >= max_rounds:
             for f in expand_node_facts:
@@ -337,19 +314,6 @@ def build_full_game(folder: str, identifier: str,
 
     prolog.retractall("role(_,_)")
     prolog.retractall("participates(_)")
-
-    # set utility at terminal nodes
-    for t in game.game_tree.terminal_nodes:
-        game.utility[t] = {}
-        for f in game.state_fluents[t]:
-            name_plus_args = f.split('(')
-            name = name_plus_args[0]
-            if name == "payoff":
-                # [:-1] to remove closing bracket
-                args = name_plus_args[1][:-1].split(',')
-                player = args[0]
-                u = args[1]
-                game.utility[t][player] = float(u)
 
     return game
 
