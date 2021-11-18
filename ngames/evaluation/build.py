@@ -104,12 +104,14 @@ def build_game_round(identifier: str, threshold: int,
     for z in initial_terminal_nodes:
         path = nx.bidirectional_shortest_path(game_round.game_tree,
                                               game_round.game_tree.root, z)
-        action_profile = []
+        # DEBUG
+        # action_profile = []
         for i in range(len(path[:-1])):
             who = game_round.turn_function[path[i]]
             what = game_round.game_tree.get_edge_data(path[i], path[i + 1])
             prolog.assertz("does({},{})".format(who, what['action']))
-            action_profile.append("does({},{})".format(who, what['action']))
+            # action_profile.append("does({},{})".format(who, what['action']))
+        # print(action_profile)
 
         q = prolog.query("terminal")
         list_q = list(q)
