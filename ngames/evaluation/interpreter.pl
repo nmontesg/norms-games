@@ -55,7 +55,6 @@ query(A and B) :-
     query(A),
     query(B).
 
-has_constraint(rule(_,_,_,if _ then _ where _)).
 
 %! query_rule(?Rule:term) is det.
 %
@@ -68,10 +67,9 @@ has_constraint(rule(_,_,_,if _ then _ where _)).
 %     constraint_rule(rule(ID,Type,Priority,if Condition then Consequence where Constraints)),
 %     maplist(query,[Condition|Constraints]).
 
-query_rule(Rule) :-
-    Rule = rule(_,_,_,if Condition then _ where Constraints),
-    Rule,
-    maplist(query,[Condition|Constraints]).
+query_rule(rule(ID,Type,Priority,if Condition then Consequence where Constraints)) :-
+	rule(ID,Type,Priority,if Condition then Consequence where Constraints),
+	maplist(query,[Condition|Constraints]).
 
 
 %! find_consequences(+ID:atom,+Type:atom,+Threshold:int,-L:list) is det
