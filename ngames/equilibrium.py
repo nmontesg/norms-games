@@ -12,8 +12,8 @@ from networkx.algorithms.shortest_paths.generic import shortest_path
 from itertools import product
 from copy import deepcopy
 from scipy.optimize import minimize
-from ngames.evaluation.extensivegames import ExtensiveFormGame
-from ngames.evaluation.normalgames import NormalFormGame
+from ngames.extensivegames import ExtensiveFormGame
+from ngames.normalgames import NormalFormGame
 from typing import Callable, Dict, Any, Tuple, List
 
 

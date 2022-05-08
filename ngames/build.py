@@ -11,7 +11,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import List, Tuple, Dict
 from pyswip import Prolog
-from ngames.evaluation.extensivegames import ExtensiveFormGame
+from ngames.extensivegames import ExtensiveFormGame
 
 prolog = Prolog()
 

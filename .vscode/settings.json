@@ -1,3 +1,7 @@
 {
-    "python.pythonPath": "/home/nmontes/anaconda3/envs/norms-games/bin/python"
+    "python.pythonPath": "/home/nmontes/anaconda3/envs/norms-games/bin/python",
+    "key": "shift+enter",
+    "command": "jupyter.execSelectionInteractive",
+    "when": "editorTextFocus",
+    "esbonio.sphinx.confDir": ""
 }
