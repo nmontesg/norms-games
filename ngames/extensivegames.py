@@ -1,6 +1,6 @@
 r"""Implementation of games in extensive form.
 
-The most important class of the module is ``ExtensiveFormGame'', which
+The most important class of the module is ``ExtensiveFormGame``, which
 provides support for n-player extensive form games, including chance moves.
 It also provides support for a graphical representation of the game tree and
 implementation for the backward induction algorithm, which is used to compute
@@ -45,14 +45,13 @@ class ExtensiveFormGame:
     game_tree : networkx.DiGraph
         Game tree, directed graph. Other than the methods and attributes of the
         class, two additional attributes are set:
-            * root : Any
-                The root node, initialized to None.
-            * terminal_nodes : List[Any]
-                The list of terminal nodes, initialized to an empty list.
+        * root (Any): The root node, initialized to None.
+        * terminal_nodes (List[Any]): The list of terminal nodes, initialized
+        to an empty list.
         The game tree is initialized as empty.
     information_partition : Dict[Any, List[Set[Any]]]
-          For every player (key), it maps it to the list of the information
-          sets (values).
+        For every player (key), it maps it to the list of the information
+        sets (values).
     is_perfect_informtion : bool, `True`
         The game is initialized as being of perfect information.
     players : List[Any]
@@ -191,7 +190,8 @@ class ExtensiveFormGame:
             Whose player has the turn at the node. If None is given, it is
             assumed that the node is terminal. The default is None.
         is_root : bool, optional
-          Whether the node is the root of the game tree. The default is False.
+            Whether the node is the root of the game tree. The default is
+            False.
 
         """
         self.game_tree.add_node(node_id)
@@ -322,7 +322,7 @@ class ExtensiveFormGame:
         Returns
         -------
         Set[Any]
-          Set of available actions according to the game tree.
+            Set of available actions according to the game tree.
 
         """
         actions = set()
@@ -385,9 +385,9 @@ class ExtensiveFormGame:
         Parameters
         ----------
         player_id : Any
-          The game player whose information partition is to be expanded.
+            The game player whose information partition is to be expanded.
         *additional_info_sets : Set[Any]
-          The information sets that are to be added.
+            The information sets that are to be added.
 
         """
         self.__check_player_in_game(player_id)
@@ -430,17 +430,16 @@ class ExtensiveFormGame:
         player_id : Any
 
         partition : Set[Any]
-          Information sets making up the player's information
-          partition.
+            Information sets making up the player's information partition.
 
         Raises
         ------
         AssertionError
-          If the union of information sets does not correspon to the same nodes
-          where it is the player's turn to play, or
-          If some nodes in the same information set have different amounts of
-          outgoing edges, or
-          If some node is terminal.
+            If the union of information sets does not correspon to the same nodes
+            where it is the player's turn to play, or
+            If some nodes in the same information set have different amounts of
+            outgoing edges, or
+            If some node is terminal.
 
         Notes
         -----
@@ -698,8 +697,8 @@ def plot_game(game: ExtensiveFormGame,
         * Node colors encode the turn function at every node.
         * Dashed archs between nodes indicate information sets.
         * Numbers in parenthesis below terminal nodes indicate utilities
-        (optional).
-
+          (optional).
+    
     Parameters
     ----------
     game : ExtensiveFormGame
@@ -736,9 +735,9 @@ def plot_game(game: ExtensiveFormGame,
         they are passed to `matplotlib.axes.Axes.legend`.
         The default is None.
     draw_utility : bool, optional
-      Whether labels should be drawn below the terminal nodes displaying the
-      utilities for all players.
-      The default is True.
+        Whether labels should be drawn below the terminal nodes displaying the
+        utilities for all players.
+        The default is True.
     decimals : int, optional
         The number of decimals places for the utility labels.
         The default is 1.
@@ -956,8 +955,7 @@ def DFS_equilibria_paths(game: ExtensiveFormGame, h: Any,
     --------
     The intended way to call this function is:
     >>> path_store = []
-    >>> DFS_equilibria_paths(game, game.game_tree.root, pure_strat, [], 1, \
-                             path_store)
+    >>> DFS_equilibria_paths(game, game.game_tree.root, pure_strat, [], 1, path_store)
     >>> print(path_store)
 
     """

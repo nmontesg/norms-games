@@ -1,8 +1,8 @@
 r"""Implementation of  games in normal form.
 
-This module provide the ``NormalFormGame'' class, which implements a normal-
+This module provide the ``NormalFormGame`` class, which implements a normal-
 form game (one-shot) with any number of players. It also provided the
-instances ``prisoners_dilemma'' and ``rock_paper_scissors'' as examples.
+instances ``prisoners_dilemma'' and ``rock_paper_scissors`` as examples.
 
 """
 
@@ -19,10 +19,10 @@ class NormalFormGame:
     A finite, n-person normal form game is a tuple :math:`(N, A, u)`, where:
         * :math:`N=\{1, 2, ..., n\}` is the set of players.
         * :math:`A=A_1\times A_2 \times ... \times A_n` is the set of joint
-        actions, where :math:`A_i` is the set of actions available to player
-        :math:`i`.
+          actions, where :math:`A_i` is the set of actions available to player
+          :math:`i`.
         * :math:`u=(u_1,u_2,...,u_n)`, where :math:`u_i:A\rightarrow R` are
-        real-valued payoff functions.
+          real-valued payoff functions.
 
     Parameters
     ----------
@@ -211,8 +211,8 @@ class NormalFormGame:
 
         A normal form game is *zero sum* if the payoff functions fulfill the
         following property:
-            .. math:: \sum\limits_{i} u_i(a_1,...,a_n) = 0\quad\forall i\in N,\
-            \forall a_1,...,a_n \in A
+        .. math:: \sum\limits_{i} u_i(a_1,...,a_n) = 0\quad\forall i\in N,\
+        \forall a_1,...,a_n \in A
 
         Returns
         -------

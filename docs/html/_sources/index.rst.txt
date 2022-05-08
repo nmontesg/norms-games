@@ -1,0 +1,61 @@
+.. norms-games documentation master file, created by
+   sphinx-quickstart on Sat May  7 12:22:09 2022.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+``norms-games`` documentation
+=============================
+
+Introduction
+------------
+
+**norms-games** implements a computational model of Elinor Ostrom's Institutional Analysis and Development framework `[1]`_. It includes the interpreter of the Action Situation Language (ASL) and the game engine to automatically generate extensive-form games from ASL descriptions.
+
+
+Requirements
+------------
+
+``norms-games`` requires a working installation of the following:
+
+- Python 3
+- `SWI-Prolog <https://www.swi-prolog.org/>`_
+- The `PySwip <https://github.com/yuce/pyswip>`_ package
+
+
+Usage
+-----
+
+For the time being, the ``norms-games`` package requires to download a local copy of the source code (using ``git clone``). The path to the package should then `be appended to your Python path <https://www.johnny-lin.com/cdat_tips/tips_pylang/path.html>`_.
+
+The ``examples`` directories has some illustrations on how to use the basic functions. Basically, you should create your ASL description in three distinct files:
+
+- ``agents.pl``
+- ``states.pl``
+- ``rules.pl``
+
+Then, to construct the extensive-form game semantics of your description, it is enough to call:
+
+>>> build_full_game(<path_to_ASL_description>, <identifier>, (threshold=..., max_rounds=...))
+
+See the documentation for further details.
+
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 4
+
+   ngames
+   
+:ref:`genindex`
+     
+
+References
+----------
+
+.. _[1] : 
+
+[1] Ostrom, E. (2005). Understanding Institutional Diversity. Princeton University Press.
+
+A full-length paper outlining the features of this computational model is currently under review. In the mean time, a pre-print is available `here <https://doi.org/10.48550/arXiv.2105.13151>`_.

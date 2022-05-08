@@ -1,0 +1,92 @@
+ngames.extensivegames
+=====================
+
+ngames.extensivegames.ExtensiveFormGame
+---------------------------------------
+.. autoclass:: ngames.extensivegames.ExtensiveFormGame
+   :members:
+   :undoc-members:
+
+ngames.extensivegames.plot_game
+-------------------------------
+.. autoclass:: ngames.extensivegames.plot_game
+   :members:
+   :undoc-members:
+
+ngames.extensivegames.backward_induction
+----------------------------------------
+.. autoclass:: ngames.extensivegames.backward_induction
+   :members:
+   :undoc-members:
+
+ngames.extensivegames.subgame_perfect_equilibrium
+-------------------------------------------------
+.. autoclass:: ngames.extensivegames.subgame_perfect_equilibrium
+   :members:
+   :undoc-members:
+
+ngames.extensivegames.DFS_equilibria_paths
+------------------------------------------
+.. autoclass:: ngames.extensivegames.DFS_equilibria_paths
+   :members:
+   :undoc-members:
+
+
+ngames.normalgames
+==================
+
+ngames.normalgames.NormalFormGame
+---------------------------------
+.. autoclass:: ngames.normalgames.NormalFormGame
+   :members:
+   :undoc-members:
+
+
+ngames.build
+============
+
+ngames.build.build_game_round
+-----------------------------
+.. autoclass:: ngames.build.build_game_round
+   :members:
+   :undoc-members:
+   
+ngames.build.build_full_game
+-----------------------------
+.. autoclass:: ngames.build.build_full_game
+   :members:
+   :undoc-members:
+
+
+ngames.equilibrium
+==================
+
+ngames.equilibrium.build_subgame
+--------------------------------
+.. autoclass:: ngames.equilibrium.build_subgame
+   :members:
+   :undoc-members:
+   
+ngames.equilibrium.scalar_function
+----------------------------------
+.. autoclass:: ngames.equilibrium.scalar_function
+   :members:
+   :undoc-members:
+   
+ngames.equilibrium.minimize_incentives
+--------------------------------------
+.. autoclass:: ngames.equilibrium.minimize_incentives
+   :members:
+   :undoc-members:
+   
+ngames.equilibrium.subgame_perfect_equilibrium
+----------------------------------------------
+.. autoclass:: ngames.equilibrium.subgame_perfect_equilibrium
+   :members:
+   :undoc-members:
+   
+ngames.equilibrium.outcome_probability
+--------------------------------------
+.. autoclass:: ngames.equilibrium.outcome_probability
+   :members:
+   :undoc-members:

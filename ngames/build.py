@@ -165,13 +165,14 @@ def build_full_game(folder: str, identifier: str,
 
     Additional attributes of the game not included in the original
     implementation are added to the returned game:
-        - roles: a dictionary mapping the participants to the list of roles
-        they assume.
-        - node_rounds: a dictionary mapping every ``non-intermediate'' node
-        to the number of rounds performed to get there.
-        - state_fluents: a dictionary mapping every ``non-intermediate'' node
-        to the predicates that hold true in that node.
+    * roles: a dictionary mapping the participants to the list of roles they 
+    assume.
+    * node_rounds: a dictionary mapping every non-intermediate node to
+    the number of rounds performed to get there.
+    * state_fluents: a dictionary mapping every non-intermediate node to
+    the predicates that hold true in that node.
 
+    
     Parameters
     ----------
     folder : str
@@ -340,8 +341,8 @@ def build_game_from_rule_combination(folder: str, identifier: str,
         rules, they should all be assigned different strictly positive
         integers.
     **kwargs
-        Additional keyword argument to be passed to ``build_full_game'', namely
-        ``threshold'' and ``max_rounds''.
+        Additional keyword argument to be passed to ``build_full_game``, namely
+        ``threshold`` and ``max_rounds``.
 
     Returns
     -------
