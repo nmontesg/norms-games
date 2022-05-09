@@ -30,6 +30,6 @@ See the documentation for further details.
 
 [1] Ostrom, E. (2005). Understanding Institutional Diversity. Princeton University Press.
 
-Montes, N., Osman, N., & Sierra, C. (2021). Enabling Game-Theoretical Analysis of Social Rules. _In Artificial Intelligence Research and Development_ (Vol. 339, pp. 90–99). IOS Press. https://doi.org/10.3233/FAIA210120
+Montes, N., Osman, N., & Sierra, C. (2021). Enabling Game-Theoretical Analysis of Social Rules. In _Artificial Intelligence Research and Development_ (Vol. 339, pp. 90–99). IOS Press. https://doi.org/10.3233/FAIA210120
 
 A full-length paper outlining the features of this computational model is currently under review. In the mean time, a pre-print is available [here](https://doi.org/10.48550/arXiv.2105.13151).
