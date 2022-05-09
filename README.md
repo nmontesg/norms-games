@@ -7,7 +7,7 @@ This repository implements a computational model of Elinor Ostrom's Institutiona
 _norms-games_ requires a working installation of the following:
 * Python 3
 * [SWI-Prolog](https://www.swi-prolog.org/)
-* [PySwip package](https://github.com/yuce/pyswip)
+* The [PySwip](https://github.com/yuce/pyswip) package
 
 ## Usage
 
