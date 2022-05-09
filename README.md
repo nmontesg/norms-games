@@ -26,7 +26,7 @@ Then, to construct the extensive-form game semantics of your description, it is 
 See the documentation for further details.
 
 
-## References
+### References
 
 [1] Ostrom, E. (2005). Understanding Institutional Diversity. Princeton University Press.
 
