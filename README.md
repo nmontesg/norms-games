@@ -1,6 +1,6 @@
 # A Computational Model of the IAD framework
 
-This repository implements a computational model of Elinor Ostrom's Institutional Analysis and Development framework [1]. It includes the interpreter to the Action Situation Language (ASL) and the game engine to automatically generate extensive-form games from ASL descriptions.
+This repository implements a computational model of Elinor Ostrom's Institutional Analysis and Development framework. It includes the interpreter to the Action Situation Language (ASL) and the game engine to automatically generate extensive-form games from ASL descriptions.
 
 ## Requirements
 
@@ -28,8 +28,8 @@ See the documentation for further details.
 
 ### References
 
-[1] Ostrom, E. (2005). Understanding Institutional Diversity. Princeton University Press.
+Ostrom, E. (2005). Understanding Institutional Diversity. Princeton University Press.
 
 Montes, N., Osman, N., & Sierra, C. (2021). Enabling Game-Theoretical Analysis of Social Rules. In _Artificial Intelligence Research and Development_ (Vol. 339, pp. 90–99). IOS Press. https://doi.org/10.3233/FAIA210120
 
-A full-length paper outlining the features of this computational model is currently under review. In the mean time, a pre-print is available [here](https://doi.org/10.48550/arXiv.2105.13151).
+Montes, N., Osman, N., & Sierra, C. (2022). A Computational Model of Ostrom’s Institutional Analysis and Development Framework. _Artificial Intelligence_ (Vol. 311). Elsevier. https://doi.org/10.1016/j.artint.2022.103756
