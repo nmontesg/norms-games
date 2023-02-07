@@ -761,6 +761,7 @@ def plot_game(game: ExtensiveFormGame,
     fig, ax = plt.subplots(**fig_kwargs)
     fig.patch.set_visible(False)
     ax.axis('off')
+    ax.set_facecolor("white")
 
     # if there is chance in the game and it does not have a color, set it to
     # white

@@ -7,8 +7,7 @@ rule(fishers,boundary,0,if agent(A) then participates(A) where []).
 rule(fishers,position,0,if participates(A) then role(A,fisher) where []).
 
 % choice
-rule(fishers,choice,0,if role(A,fisher) then can(A,go_to_spot(S))
-where [at(A,shore),fishing_spot(S)]).
+rule(fishers,choice,0,if role(A,fisher) then can(A,go_to_spot(S)) where [at(A,shore),fishing_spot(S)]).
 
 rule(fishers,choice,0,if role(A,fisher) then can(A,stay)
 where [at(A,S),fishing_spot(S)]).
