@@ -1,0 +1,22 @@
+[project]
+name = "ngames"
+version = "1.0.0"
+description = "Integration of normative systems and game theory"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+keywords = ["institutional analysis", "normative systems", "game theory"]
+authors = [
+  {name = "Nieves Montes", email = "nmontes@iiia.csic.es" }
+]
+
+[project.urls]
+"Homepage" = "https://github.com/nmontesg/norms-games"
+"Bug Reports" = "https://github.com/nmontesg/norms-games/issues"
+
+[tool.setuptools]
+"packages" = ["ngames"]
+
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
